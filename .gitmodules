@@ -1,0 +1,3 @@
+[submodule "garment"]
+	path = garment
+	url = https://github.com/RisingStockPrices/dressing-in-order.git

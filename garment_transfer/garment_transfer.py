@@ -1,4 +1,4 @@
-
+from dior.test_code.pose import *
 
 # def run_parser(model, input_dir, output_dir):
 #     """
@@ -40,7 +40,7 @@ def gt_generate(user_img, gar_img, parse_output_dir='data/'):
     """
     print('==========GARMENT TRANSFER=============')
 
-    
+
     # parse garment image
     # parsed_gar_img = run_parser(gar_img, parse_output_dir)
 
@@ -50,14 +50,21 @@ def gt_generate(user_img, gar_img, parse_output_dir='data/'):
     # model = 1 #DIORModel(args)
     #model.setup(args)
 
+    _pid = 1
+
     # set input
     # person id
-    # pid = 1 #('userfile.png', None, None)
-    # garments to try on
-    # ogids = [1,2] #[('print', 2, 5)]
-    
+    pid = ("print",_pid, None) # load the 0-th person from "print" group, 
+    gids = [
+    ("flower",1,5), # load the 0-th person from "plaid" group, garment #5 (top) is interested
+    ("pattern",3,2),  # load the 3-rd person from "pattern" group, garment #1 (bottom) is interested
+    ]
+
+
+    # generate
+
     # run DIOR
-    # pimg, gimgs, oimgs, gen_img[0], to_pose = dress_in_order(model, pid, ogids=ogids)
+    pimg, gimgs, oimgs, gen_img, pose = dress_in_order(model, pid,  gids=gids, pose_id=pid)
     print('~computing vton image~')
 
     # show result
@@ -70,10 +77,12 @@ def gt_generate(user_img, gar_img, parse_output_dir='data/'):
     print('--------------------------')
     # save result
     print('Saving the image...')
+    imsave(gen_img,fname='test.png',fdir='../data/00_test/results')
 
     # if plot:
     #     plt.imshow(oimgs) 
     # else:
     #     return oimgs
     
-    
+if __name__=="__main__":
+    gt_generate(None,None)
