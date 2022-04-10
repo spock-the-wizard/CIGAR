@@ -1,15 +1,28 @@
+import os,sys
+
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.dirname(SCRIPT_DIR))
+
 from dior.test_code.pose import *
 
-# def run_parser(model, input_dir, output_dir):
-#     """
-#     SCHP의 simple_extractor.py 실행
-#     Input: input_dir = garment image path
-#     Output: 코드에서는 parse된 이미지와 logits_result가 저장됨. 
-#     -> path를 return할 것인가 array를 return할 것인가?
+from parser.simple_extractor import *
 
-#     """
-#     par_img = 1
-#     return par_gar_img
+def run_parser(input_dir, output_dir):
+    """
+    SCHP의 simple_extractor.py 실행
+    Input: input_dir = garment image path
+    Output: 코드에서는 parse된 이미지와 logits_result가 저장됨. 
+    -> path를 return할 것인가 array를 return할 것인가?
+    """
+    print('[PARSER] Running Parser on Garment Image...')
+    results = get_garment_category(input_dir,output_dir)
+    print('[PARSER] Completed!')
+    print('[PARSER] Classification Done! Results are...')
+    print(results)#'[PARSER] Completed!')
+    print('[PARSER] Results saved to %s'%output_dir)
+
+    # # par_img = 1
+    # return par_gar_img
 
 # def dress_in_order(model, pid, pose_id=None, gids=[], ogids=[], order=[5,1,3,2], perturb=False):
 #     """
@@ -29,6 +42,8 @@ from dior.test_code.pose import *
 #     gen_img = [1,2,3]
 #     to_pose = 1
 #     return pimg, gimgs, oimgs, gen_img[0], to_pose
+
+
 
 def gt_generate(user_img, gar_img, parse_output_dir='data/'):
     """
@@ -85,4 +100,7 @@ def gt_generate(user_img, gar_img, parse_output_dir='data/'):
     #     return oimgs
     
 if __name__=="__main__":
-    gt_generate(None,None)
+    run_parser('../data/02_image_retreival','../data/03_image_parsed')
+    # gt_generate(None,None)
+    
+

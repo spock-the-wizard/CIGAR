@@ -135,8 +135,11 @@ def dress_in_order(model, pid, pose_id=None, gids=[], ogids=[], order=[5,1,3,2],
         _,_,k = gid
         gimg, gparse, pose =  load_img(gid, ds)
         seg = model.encode_single_attr(gimg[None], gparse[None], pose[None], to_pose[None], i=gid[2])
+        import pdb;pdb.set_trace()
+        # override garments
         gsegs[gid[2]] = seg
         gimgs += [gimg * (gparse == gid[2])]
+        
 
     # encode garment (overlay)
     garments = []
