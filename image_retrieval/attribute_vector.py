@@ -25,37 +25,64 @@ def convert_to_one_hot(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx, d
     toptee_to_vector = dict()
     lower_body_to_vector = dict()
 
+    print("Now converting dress attributes to one-hot vector..")
+    hitcount = 0
+
     for k, attr_list in tqdm(dress_to_attr.items()):
         zero_v = np.zeros(1000) # We have 1000 attributes
         for attr in attr_list:
-            idx = attr2idx[attr]
-            zero_v[idx] = 1
+            if attr in attr2idx:
+                idx = attr2idx[attr]
+                zero_v[idx] = 1
+                hitcount+=1
         dress_to_vector[k] = zero_v
-    
+
+    print(f"Average {hitcount/len(dress_to_attr)} attributes selected.")
+
+
+    print("Now converting shirt attributes to one-hot vector..")
+    hitcount = 0
+
     for k, attr_list in tqdm(shirt_to_attr.items()):
         zero_v = np.zeros(1000) # We have 1000 attributes
         for attr in attr_list:
-            idx = attr2idx[attr]
-            zero_v[idx] = 1
+            if attr in attr2idx:
+                idx = attr2idx[attr]
+                zero_v[idx] = 1
+                hitcount +=1
         shirt_to_vector[k] = zero_v
+
+    print(f"Average {hitcount/len(shirt_to_attr)} attributes selected.")
+
+    print("Now converting toptee attributes to one-hot vector..")
+    hitcount = 0
 
     for k, attr_list in tqdm(toptee_to_attr.items()):
         zero_v = np.zeros(1000) # We have 1000 attributes
         for attr in attr_list:
-            idx = attr2idx[attr]
-            zero_v[idx] = 1
+            if attr in attr2idx:
+                idx = attr2idx[attr]
+                zero_v[idx] = 1
+                hitcount +=1
         toptee_to_vector[k] = zero_v
+    print(f"Average {hitcount/len(toptee_to_attr)} attributes selected.")
 
     subset = extract_subset(deepfashion_img_category_path, 
                             deepfashion_img_attr_path)
-    
-    for elem in subset:
+
+    print("Now converting lower-clothes attributes to one-hot vector..")
+    hitcount = 0
+
+    for elem in tqdm(subset):
         file_name, attr_list = elem[0], elem[1]
         zero_v = np.zeros(1000) # We have 1000 attributes
         for idx, attr_v in enumerate(attr_list):
             if attr_v == 1:
                 zero_v[idx] = 1
+                hitcount +=1
         lower_body_to_vector[file_name] = zero_v
+    print(f"Average {hitcount/len(subset)} attributes selected.")
+
 
     return dress_to_vector, shirt_to_vector, toptee_to_vector, lower_body_to_vector
     
@@ -67,7 +94,7 @@ def convert_to_bert(dress_to_attr, shirt_to_attr, toptee_to_attr):
 def convert_to_wordvector(dress_to_attr, shirt_to_attr, toptee_to_attr):
     raise NotImplementedError
 
-def save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector, mode, data_path="/home/deokhk/coursework/CIGAR/data/image_retrieval/"):
+def save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector, mode, data_path):
     dress_filename = f"dress_{mode}.pickle"
     shirt_filename = f"shirt_{mode}.pickle"
     toptee_filename = f"toptee_{mode}.pickle"
@@ -83,6 +110,7 @@ def save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, lower
     for path, vector in zip(path_list, vectors):
         with open(path, 'wb') as f:
             pickle.dump(vector, f)
+        print(f"Saved {path}.")
 
 def main(args):
     with open(args.attribute2_idx_path, 'r') as f:
@@ -109,7 +137,7 @@ def main(args):
     if args.mode == "one-hot":
         dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector = convert_to_one_hot(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx,
         "/home/deokhk/coursework/Category_and_Attribute/Anno_coarse/list_category_img.txt", "/home/deokhk/coursework/Category_and_Attribute/Anno_coarse/list_attr_img.txt")
-        save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, args.mode, lower_body_to_vector)
+        save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector, mode=args.mode, data_path="/home/deokhk/coursework/CIGAR/data/image_retrieval/")
 
     elif args.mode == "bert":
         pass
