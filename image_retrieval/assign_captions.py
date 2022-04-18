@@ -57,13 +57,12 @@ def main(args):
     # Returned generated data has a format like..
     # [{"target":, "candidate":, "captions:" [..], "similarity": []}]
     lower_augmented_caption_datas = []
+
     for caption in tqdm(captions):
         discard = False
         target = caption['target']
         candidate = caption['candidate']
         fashioniq_captions = caption['captions']
-        target_vector = fashioniq_imgname_to_vector[target]
-        candidate_vector = fashioniq_imgname_to_vector[candidate]
 
         try:
             target_vector = fashioniq_imgname_to_vector[target]
@@ -102,7 +101,7 @@ def main(args):
     save_file_name = f"augmented_{args.similarity_threshold}.json"
     save_path = os.path.join(args.save_dir, save_file_name)
     with open(save_path, "w") as f:
-        json.dump(filtered_dataset, f)
+        json.dump(filtered_dataset, f, indent=4, sort_keys=True)
     print(f"Saved filterd Augmented data to {save_path}")
 
 
@@ -113,3 +112,5 @@ if __name__ == "__main__":
     parser.add_argument("--fashioniq_dir", help = "Path to the fasioniq caption dataset", default="/home/deokhk/coursework/fashion-iq/data/captions/")
     parser.add_argument("--save_dir", help="path to the directory to save the generated data", default="/home/deokhk/coursework/CIGAR/data/image_retrieval/generated_captions/")
     parser.add_argument("--similarity_threshold", default=0.0, type=float)
+    args = parser.parse_args()
+    main(args)
