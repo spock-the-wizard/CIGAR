@@ -1,5 +1,6 @@
 *.pickle
 __pycache__/
 *.png
+*.out
 ./image_retrieval/*.sh
-./image_retrieval/sbatch_output_log/
+./image_retrieval/sbatch_output_log
