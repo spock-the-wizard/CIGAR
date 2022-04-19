@@ -16,6 +16,6 @@ module purge
 
 date
 
-python 
+python assign_captions.py
 
 date
