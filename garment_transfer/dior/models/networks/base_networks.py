@@ -136,7 +136,7 @@ class ADGANEncoder(nn.Module):
             from models.networks.block_extractor.block_extractor import BlockExtractor
             self.extractor = BlockExtractor(kernel_size=1)
         else:
-            from utils.train_utils import torch_transform
+            from ...utils.train_utils import torch_transform
             self.extractor = torch_transform
 
     

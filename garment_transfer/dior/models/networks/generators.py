@@ -3,7 +3,7 @@ import torch
 import math
 import torch.nn.functional as F
 import random
-from models.networks.base_networks import *
+from .base_networks import *
 import os
 
 class BaseGenerator(nn.Module):

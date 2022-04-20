@@ -1,5 +1,5 @@
-from datasets.deepfashion_datasets import * 
-from datasets.texture_synthesis_datasets import *
+from .deepfashion_datasets import * 
+from .texture_synthesis_datasets import *
 import torch.utils.data as data
 import os
 

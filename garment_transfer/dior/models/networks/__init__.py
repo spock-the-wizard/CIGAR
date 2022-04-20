@@ -10,7 +10,7 @@ def find_generator_using_name(model_name):
     be instantiated. It has to be a subclass of BaseModel,
     and it is case-insensitive.
     """
-    model_filename = "models.networks.generators"
+    model_filename = "dior.models.networks.generators"
     #import pdb; pdb.set_trace()
     modellib = importlib.import_module(model_filename)
     model = None
