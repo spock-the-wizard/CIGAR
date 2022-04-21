@@ -3,6 +3,7 @@
 from dior.test_code.pose import *
 from .datasets.deepfashion_datasets import *
 from torchvision.utils import save_image
+from PIL import ImageOps
 class IngredientsLibrary():
     def __init__(self,usr_dir,gar_dir,parse_dir,pose_csv,crop_size=(256,256)):
         self.usr_dir = usr_dir
@@ -22,6 +23,7 @@ class IngredientsLibrary():
 
     def _load_img(self, fn):
         img = Image.open(fn).convert("RGB")
+        img = ImageOps.exif_transpose(img)
         self.old_size = np.array(img).shape[:2]
         img = self.resize(img)
         img = self.toTensor(img)
@@ -72,8 +74,9 @@ def dress_up(ds,user,g_keys,g_cats,order=[5,1,3,2]):
     gsegs = model.encode_attr(pimg[None], parse[None], from_pose[None], to_pose[None])
    
     # swap base garment if any
+    import pdb;pdb.set_trace()
     gimgs = []
-    for gkey,gid in zip(g_keys,g_cats): # in gids:
+    for gkey,gid in zip(g_keys,g_cats[1:]): # in gids:
         gimg, pose, gparse = ds.load_item(gkey) #garment)load_img(gid, ds)
         seg = model.encode_single_attr(gimg[None], gparse[None], pose[None], to_pose[None], i=gid)
         # override garments
@@ -95,7 +98,11 @@ def extract_vton(user,garments,gids,usr_dir,gar_dir,parse_dir,pose_csv):
 
     user = user.split('/')[-1]
     g_pths = [file.split('/')[-1] for file in garments]
-    res = dress_up(ds,user,g_pths,gids)
+    usr,gars,vton = dress_up(ds,user,g_pths,gids)
     
+    res = plot_img(usr,gars,[],vton)
     
+    plt.imsave('shi.png',res)
+    # save_image(res,'hi.png')
+    return vton
     import pdb;pdb.set_trace()
