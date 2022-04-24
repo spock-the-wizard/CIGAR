@@ -9,6 +9,8 @@ import sys
 sys.path.append("/home/deokhk/coursework/CIGAR/")
 from tqdm import tqdm
 from utils.util import extract_subset
+from sentence_transformers import SentenceTransformer
+
 
 """
 This file saves pickle file with type dict(numpy).
@@ -19,57 +21,32 @@ Here, we generate three types of attribute vectors.
 [3] Sum of word vectors [256d]
 """
 
-def convert_to_one_hot(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx, deepfashion_img_category_path, deepfashion_img_attr_path):
-    dress_to_vector = dict()
-    shirt_to_vector = dict()
-    toptee_to_vector = dict()
-    lower_body_to_vector = dict()
-
-    print("Now converting dress attributes to one-hot vector..")
+def convert_to_one_hot_single(garment_to_attr, attr2idx, garment_type:str):
+    garment_to_vector = dict()
+    print(f"Now converting {garment_type} attributes to one-hot vector..")
     hitcount = 0
 
-    for k, attr_list in tqdm(dress_to_attr.items()):
+    for k, attr_list in tqdm(garment_to_attr.items()):
         zero_v = np.zeros(1000) # We have 1000 attributes
         for attr in attr_list:
             if attr in attr2idx:
                 idx = attr2idx[attr]
                 zero_v[idx] = 1
                 hitcount+=1
-        dress_to_vector[k] = zero_v
+        garment_to_vector[k] = zero_v
 
-    print(f"Average {hitcount/len(dress_to_attr)} attributes selected.")
+    print(f"Average {hitcount/len(garment_to_vector)} attributes selected.")
+    return garment_to_vector
 
 
-    print("Now converting shirt attributes to one-hot vector..")
-    hitcount = 0
+def convert_to_one_hot(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx, deepfashion_img_category_path, deepfashion_img_attr_path):
+    dress_to_vector = convert_to_one_hot_single(dress_to_attr, attr2idx, 'dress')
+    shirt_to_vector = convert_to_one_hot_single(shirt_to_attr, attr2idx, 'shirt')
+    toptee_to_vector = convert_to_one_hot_single(toptee_to_attr, attr2idx, 'toptee')
 
-    for k, attr_list in tqdm(shirt_to_attr.items()):
-        zero_v = np.zeros(1000) # We have 1000 attributes
-        for attr in attr_list:
-            if attr in attr2idx:
-                idx = attr2idx[attr]
-                zero_v[idx] = 1
-                hitcount +=1
-        shirt_to_vector[k] = zero_v
-
-    print(f"Average {hitcount/len(shirt_to_attr)} attributes selected.")
-
-    print("Now converting toptee attributes to one-hot vector..")
-    hitcount = 0
-
-    for k, attr_list in tqdm(toptee_to_attr.items()):
-        zero_v = np.zeros(1000) # We have 1000 attributes
-        for attr in attr_list:
-            if attr in attr2idx:
-                idx = attr2idx[attr]
-                zero_v[idx] = 1
-                hitcount +=1
-        toptee_to_vector[k] = zero_v
-    print(f"Average {hitcount/len(toptee_to_attr)} attributes selected.")
-
+    lower_body_to_vector = dict()
     subset = extract_subset(deepfashion_img_category_path, 
                             deepfashion_img_attr_path)
-
     print("Now converting lower-clothes attributes to one-hot vector..")
     hitcount = 0
 
@@ -85,11 +62,46 @@ def convert_to_one_hot(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx, d
 
 
     return dress_to_vector, shirt_to_vector, toptee_to_vector, lower_body_to_vector
-    
 
 
-def convert_to_bert(dress_to_attr, shirt_to_attr, toptee_to_attr):
-    raise NotImplementedError
+def convert_to_lm_embedding_single(model, garment_to_attr, garment_type:str):
+    garment_to_vector = dict()
+    print(f"Now converting {garment_type} attributes to sentence embedding using paraphrase-MiniLM-L6-v2")
+
+    for k, attr_list in tqdm(garment_to_attr.items()):
+        attr_string = " ".join(attr_list)
+        attr_embeddings = model.encode([attr_string])        
+        garment_to_vector[k] = attr_embeddings
+    return garment_to_vector
+
+def convert_to_lm_embedding(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx, deepfashion_img_category_path, deepfashion_img_attr_path):
+    model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+
+    dress_to_vector = convert_to_lm_embedding_single(model, dress_to_attr, 'dress')
+    shirt_to_vector = convert_to_lm_embedding_single(model, shirt_to_attr, 'shirt')
+    toptee_to_vector = convert_to_lm_embedding_single(model, toptee_to_attr, 'toptee')
+
+    print("Now converting dress attributes to sentence-bert vector..")
+
+    lower_body_to_vector = dict()
+    subset = extract_subset(deepfashion_img_category_path, 
+                            deepfashion_img_attr_path)
+
+    print("Now converting lower-clothes attributes to lm_embedding vector..")
+
+    idx2attr = {v: k for k, v in attr2idx.items()}
+    for elem in tqdm(subset):
+        file_name, attr_list = elem[0], elem[1]
+        attr_string_list = []
+        for idx, attr_v in enumerate(attr_list):
+            if attr_v == 1:
+                attr_string_list.append(idx2attr[idx])
+
+        attr_string = " ".join(attr_string_list)
+        attr_embeddings = model.encode([attr_string])        
+        lower_body_to_vector[file_name] = attr_embeddings
+
+    return dress_to_vector, shirt_to_vector, toptee_to_vector, lower_body_to_vector
 
 def convert_to_wordvector(dress_to_attr, shirt_to_attr, toptee_to_attr):
     raise NotImplementedError
@@ -140,8 +152,10 @@ def main(args):
         save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector, mode=args.mode, data_path="/home/deokhk/coursework/CIGAR/data/image_retrieval/")
 
     elif args.mode == "bert":
-        pass
-        #dress_vectors, shirt_vectors, toptee_vectors = convert_to_bert(dress_to_attr, shirt_to_attr, toptee_to_attr)
+        dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector= convert_to_lm_embedding(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx,
+        "/home/deokhk/coursework/Category_and_Attribute/Anno_coarse/list_category_img.txt", "/home/deokhk/coursework/Category_and_Attribute/Anno_coarse/list_attr_img.txt")
+        save_to_vector_to_pickle(dress_vectors, shirt_vectors, toptee_vectors, lower_body_to_vector, mode=args.mode, data_path="/home/deokhk/coursework/CIGAR/data/image_retrieval/")
+
     elif args.mode == "word-vector":
         pass
         #dress_vectors, shirt_vectors, toptee_vectors = convert_to_wordvector(dress_to_attr, shirt_to_attr, toptee_to_attr)
