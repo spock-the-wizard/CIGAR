@@ -69,9 +69,9 @@ def convert_to_lm_embedding_single(model, garment_to_attr, garment_type:str):
     print(f"Now converting {garment_type} attributes to sentence embedding using paraphrase-MiniLM-L6-v2")
 
     for k, attr_list in tqdm(garment_to_attr.items()):
-        attr_string = " ".join(attr_list)
+        attr_string = '[CLS] ' + ' [SEP] '.join(attr_list)
         attr_embeddings = model.encode([attr_string])        
-        garment_to_vector[k] = attr_embeddings
+        garment_to_vector[k] = np.squeeze(attr_embeddings)
     return garment_to_vector
 
 def convert_to_lm_embedding(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2idx, deepfashion_img_category_path, deepfashion_img_attr_path):
@@ -97,9 +97,9 @@ def convert_to_lm_embedding(dress_to_attr, shirt_to_attr, toptee_to_attr, attr2i
             if attr_v == 1:
                 attr_string_list.append(idx2attr[idx])
 
-        attr_string = " ".join(attr_string_list)
+        attr_string = '[CLS] ' + ' [SEP] '.join(attr_string_list)
         attr_embeddings = model.encode([attr_string])        
-        lower_body_to_vector[file_name] = attr_embeddings
+        lower_body_to_vector[file_name] = np.squeeze(attr_embeddings)
 
     return dress_to_vector, shirt_to_vector, toptee_to_vector, lower_body_to_vector
 

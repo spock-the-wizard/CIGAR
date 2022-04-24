@@ -53,7 +53,6 @@ def main(args):
     lower_vector_list = []
     for k ,v in lower_vectors.items():
         lower_vector_list.append(v)
-
     # Returned generated data has a format like..
     # [{"target":, "candidate":, "captions:" [..], "similarity": []}]
     lower_augmented_caption_datas = []
@@ -98,7 +97,7 @@ def main(args):
     filtered_dataset = filter_dataset(lower_augmented_caption_datas, args.similarity_threshold)
     print(f"Number of data that satisfies similarity > {args.similarity_threshold} : {len(filtered_dataset)}")
     
-    save_file_name = f"augmented_{args.similarity_threshold}.json"
+    save_file_name = f"augmented_{args.similarity_threshold}_{args.vector_type}.json"
     save_path = os.path.join(args.save_dir, save_file_name)
     with open(save_path, "w") as f:
         json.dump(filtered_dataset, f, indent=4, sort_keys=True)
@@ -108,7 +107,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--vector_dir", help = "Path to the directory containing the vectors generated from attributes", default ="/home/deokhk/coursework/CIGAR/data/image_retrieval")
-    parser.add_argument("--vector_type", choices=["one-hot", "bert", "word2vec"], help="Attribute vectors type", default="one-hot")
+    parser.add_argument("--vector_type", choices=["N-hot", "Bert", "Word2Vec"], help="Attribute vectors type", default="N-hot")
     parser.add_argument("--fashioniq_dir", help = "Path to the fasioniq caption dataset", default="/home/deokhk/coursework/fashion-iq/data/captions/")
     parser.add_argument("--save_dir", help="path to the directory to save the generated data", default="/home/deokhk/coursework/CIGAR/data/image_retrieval/generated_captions/")
     parser.add_argument("--similarity_threshold", default=0.0, type=float)
