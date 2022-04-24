@@ -1,0 +1,30 @@
+{
+    "gpu_id": "1",
+    "manualSeed": 1650656540,
+    "warmup": true,
+    "expr_name": "devel",
+    "data_root": "/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/data",
+    "text_method": "lstm-gru",
+    "fdims": 2048,
+    "method": "tirg",
+    "target": "all",
+    "epochs": 100,
+    "print_freq": 1,
+    "batch_size": 16,
+    "image_size": 224,
+    "backbone": "resnet152",
+    "normalize_scale": 5.0,
+    "lr": 0.00011148,
+    "lrp": 0.48,
+    "lr_decay_factor": 0.4747,
+    "lr_decay_steps": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70
+    ],
+    "test_root": "/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/ours/train"
+}
