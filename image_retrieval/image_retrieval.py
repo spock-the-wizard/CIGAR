@@ -61,7 +61,7 @@ def ir_find_match(feedback, previous_img=None):
     elif isinstance(feedback, str):
         # Turn other than 
         top_k = 2
-        def model(feedback, img):
+        def model(feedback, imgs):
             imgs = [1,2,3,4,5]
             new_imgs = np.random.choice(imgs, size=top_k)
             return new_imgs
