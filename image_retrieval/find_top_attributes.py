@@ -2,7 +2,10 @@ import argparse
 import os
 import json
 import itertools
+import sys 
 
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from utils.util import extract_subset
 
 
 def main(args):
@@ -55,15 +58,55 @@ def main(args):
     for k,v in toptee_top_attributes.items():
         toptee_top_attr_list.append((k,v))
 
-
     dress_top_attr_list.sort(key=lambda y:y[1], reverse=True)
     shirt_top_attr_list.sort(key=lambda y:y[1], reverse=True)
     toptee_top_attr_list.sort(key=lambda y:y[1], reverse=True)
 
-    print(f"Dress: {dress_top_attr_list[:top_k]}")
-    print(f"Shirt: {shirt_top_attr_list[:top_k]}")
-    print(f"TopTee: {toptee_top_attr_list[:top_k]}")
+    dress_top_attrs = []
+    shirt_top_attrs = []
+    toptee_top_attrs = []
 
+    for attr_name, count in dress_top_attr_list:
+        dress_top_attrs.append(attr_name)
+
+    for attr_name, count in shirt_top_attr_list:
+        shirt_top_attrs.append(attr_name)
+
+    for attr_name, count in toptee_top_attr_list:
+        toptee_top_attrs.append(attr_name)
+
+    print(f"Dress: {dress_top_attrs[:top_k]}")
+    print(f"Shirt: {shirt_top_attrs[:top_k]}")
+    print(f"TopTee: {toptee_top_attrs[:top_k]}")
+
+
+    # Now, we calculate the top attributes for lower-body garments
+    lower_top_attributes =dict()
+    subset = extract_subset("/home/deokhk/coursework/Category_and_Attribute/Anno_coarse/list_category_img.txt", "/home/deokhk/coursework/Category_and_Attribute/Anno_coarse/list_attr_img.txt")
+
+    idx2attr = {v: k for k, v in attr2idx.items()}
+    for elem in subset:
+        file_name, attr_list = elem[0], elem[1]
+        for idx, attr_v in enumerate(attr_list):
+            if attr_v == 1:
+                attr_name = idx2attr[idx]
+                if attr_name not in lower_top_attributes:
+                    lower_top_attributes[attr_name] = 1
+                else:
+                    lower_top_attributes[attr_name] +=1
+
+    lower_top_attr_list = []
+
+    for k,v in lower_top_attributes.items():
+        lower_top_attr_list.append((k,v))
+
+    lower_top_attr_list.sort(key=lambda y:y[1], reverse=True)
+    lower_top_attrs = []
+
+    for attr_name, count in lower_top_attr_list:
+        lower_top_attrs.append(attr_name)
+
+    print(f"Lower: {lower_top_attrs[:top_k]}")
 
 
 if __name__ == "__main__":
