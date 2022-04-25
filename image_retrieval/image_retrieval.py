@@ -1,6 +1,6 @@
 import numpy as np
 from torch import manual_seed
-from image_retrieval.retrieval_model.ours.tools import find_target
+from image_retrieval.retrieval_model.ours.tools.find_target import find_target
 def ir_show_keywords():
     """
     Input: X
@@ -12,7 +12,7 @@ def ir_show_keywords():
     categories = ['dress', 'shirt', 'toptee', 'pants']
     for idx, keyword in enumerate(categories):
         print(f"{idx}. {keyword}")
-    category_idx = (input("Select one category: ")) # We assume user input has format like "1,2,3,4"
+    category_idx = int(input("Select one category: ")) # We assume user input has format like "1,2,3,4"
     selected_category = categories[category_idx]
     candidate_keywords = ["leaf", "leather", "leather mini", "leather skater", "leopard"]
     print("=== List of attributes to select ===")
@@ -24,7 +24,7 @@ def ir_show_keywords():
     print(f"Selected keywords are: {selected_keywords}")
     return selected_category, selected_keywords
 
-def ir_find_match(feedback, previous_img, category, model, index_ids, index_feats, params):
+def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params):
     """
     Input:
         feedback: If initial turn, it would be attributes selected. type: list(str)
@@ -37,15 +37,15 @@ def ir_find_match(feedback, previous_img, category, model, index_ids, index_feat
     if isinstance(feedback, list):
         # Initial turn
         att2cloth = dict() 
-        att2cloth['halter'] = ['A','B','C']
-        att2cloth['dress'] = ['A', 'C']
-        att2cloth['leopard'] = ['D', 'E']
-        att2cloth['leather skater'] = ['C', 'A']
-        att2cloth['leather mini'] = ['C', 'A']
-        att2cloth['leaf'] = ['B', 'C', 'D']
-        att2cloth['leather'] = ['B', 'C', 'D']
+        att2cloth['halter'] = ['B007E66YTO','B009D4L87S','B005930UCQ']
+        att2cloth['dress'] = ['B007E66YTO', 'B005930UCQ']
+        att2cloth['leopard'] = ['B007E66YTO', 'B009D4L87S', 'B005930UCQ', 'B0083CJGU2', 'B00DQGVNLK']
+        att2cloth['leather skater'] = ['B005930UCQ', 'B007E66YTO']
+        att2cloth['leather mini'] = ['B005930UCQ', 'B007E66YTO']
+        att2cloth['leaf'] = ['B009D4L87S', 'B005930UCQ', 'B0083CJGU2']
+        att2cloth['leather'] = ['B007E66YTO', 'B009D4L87S', 'B005930UCQ', 'B0083CJGU2', 'B00DQGVNLK']
 
-        all_clothes = ['A','B','C','D','E']
+        all_clothes = ['B007E66YTO','B009D4L87S','B005930UCQ','B0083CJGU2','B00DQGVNLK']
         clothes = {k:0 for k in all_clothes}
         for key in feedback:
             matches = att2cloth[key]
@@ -61,22 +61,18 @@ def ir_find_match(feedback, previous_img, category, model, index_ids, index_feat
         # 선택된 imageid return
         for img in imgs:
             print(img)
-        selected = int(input('Please select one item you like the most'))
+        selected = int(input('Please select one item you like the most: '))
         return  imgs[selected]# We should return imageid!
     elif isinstance(feedback, str):
         # Turn other than 
         top_k = 10
-        new_imgs = find_target(gpu_id=params.gpu_id,
-                        manualseed=params.manualSeed,
-                        data_root=params.data_root,
-                        test_root=params.test_root,
-                        img_size=params.img_size,
-                        model = model,
+        new_imgs = find_target(
+                        model=model,
+                        args=params,
                         index_ids=index_ids,
                         index_feats=index_feats,
                         c_id=previous_img,
-                        category= category,
-                        caption= feedback)
+                        caption=feedback)
         print(f"Our model searched {top_k} clothes for you")
         for img in new_imgs:
             print(f"Image is displayed here: {img}")

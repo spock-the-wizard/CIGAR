@@ -3,7 +3,7 @@ get_score.py
 '''
 import os
 import sys
-sys.path.append('../train')
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import pickle
 import time
 import random
@@ -20,44 +20,39 @@ from torch.autograd import Variable
 
 from datetime import datetime
 
-
 TOP_K = 10
 
 # init
-def init_env():
+def init_env(args):
     # load argsuration.
-    state = {k: v for k, v in args._get_kwargs()}
-    pprint(state)
-
     # if use cuda.
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
-    
+    os.environ['CUDA_VISIBLE_DEVICES'] = args['gpu_id']
+    manualSeed = args['manualSeed']
     # Random seed
-    if args.manualSeed is None:
-        args.manualSeed = random.randint(1, 10000)
-    random.seed(args.manualSeed)
-    torch.manual_seed(args.manualSeed)
+    if manualSeed is None:
+        manualSeed = random.randint(1, 10000)
+    random.seed(manualSeed)
+    torch.manual_seed(manualSeed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(args.manualSeed)
+        torch.cuda.manual_seed_all(manualSeed)
         torch.backends.cudnn.benchmark = True           # speed up training.
 
-def find_target(args):
+def find_target(model, args, index_ids, index_feats, c_id, caption):
     # init
-    init_env()
+    init_env(args)
     
-    model = args.model
     SPLIT = 'test'
     #targets = ['dress', 'toptee', 'shirt']
-    target = args.category
+    target = args['category']
     print(f">> SPLIT: {SPLIT} / TARGET: {target}")
 
-    from src.dataset import FashionIQUserDataset
+    from train.src.dataset import FashionIQUserDataset
     query_dataset = FashionIQUserDataset(
-        test_root = args.test_root,
-        candidate = args.c_id,
-        caption = args.caption,
-        data_root=args.data_root,
-        image_size=args.img_size,
+        test_root = args['test_root'],
+        candidate = c_id,
+        caption = caption,
+        data_root=args['data_root'],
+        image_size=args['image_size'],
         split=SPLIT,
         target=target
     )
@@ -97,45 +92,17 @@ def find_target(args):
     query_feats = np.asarray(query_feats)
     # calculate cosine similarity
     print('calculating cosine similarity score...')
-    y_score = np.dot(query_feats, args.index_feats.T)    # query_feats = (1,600 or 2048)  / index_feats = #. test images(600 or 2048, 3818)
+    y_score = np.dot(query_feats, index_feats.T)    # query_feats = (1,600 or 2048)  / index_feats = #. test images(600 or 2048, 3818)
     y_score = y_score[0]
     y_indices = np.argsort(-1 * y_score)
 
     print(y_score.shape, y_indices.shape)
     score = []
-    _r = []
     for j in range(min(TOP_K, len(y_score))):
         index = y_indices[j]
         print(index)
-        _r.append([
-            str(args.index_ids[index]),
-            float(y_score[index])
-        ])
-    score.append([args.c_id, _r])
+        score.append(
+            str(index_ids[index])
+        )
     return score
     # save score to file.
-   
-    
-
-if __name__ == "__main__":
-    # args for region
-    parser = argparse.ArgumentParser('Test')
-    
-    # Common options.
-    parser.add_argument('--gpu_id', default='0', type=str, help='id(s) for CUDA_VISIBLE_DEVICES')
-    parser.add_argument('--manualSeed', type=int, default=int(time.time()), help='manual seed')
-    parser.add_argument('--data_root', required=True, type=str, default='/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/data', help='data root directory path')
-    parser.add_argument('--test_root', required=True, type=str, default = '/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/ours/train')
-    parser.add_argument('--img_size', required=True, type=int, help='required image size for the trained model')
-    parser.add_argument('--model', required=True, type=object, help='trained model')
-    parser.add_argument('--index_ids', required=True, help='gallery ids')
-    parser.add_argument('--index_feats', required=True, help='gallery features')
-    parser.add_argument('--c_id', required=True, type=str, help='id for candidate image')
-    parser.add_argument('--category', required=True, type=str, choices=['dress', 'toptee', 'shirt', 'pants'])
-    parser.add_argument('--caption', required=True, type=str, help='user feedback')
-    
-    ## parse and save args.
-    args, _ = parser.parse_known_args()
-
-    # main
-    find_target(args)

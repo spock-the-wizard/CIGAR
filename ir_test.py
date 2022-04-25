@@ -18,7 +18,7 @@ IR_PARAMS = {'gpu_id': '0',
             'data_root': '/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/data',
             'test_root': '/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/ours/train',
             'expr_name': 'devel', 
-            'img_size': 224}  # data_root, test_root 서버 경로로 바꿔야함!!
+            'image_size': 224}  # data_root, test_root 서버 경로로 바꿔야함!!
 
 #c_id = 'B007IAPK1E'
 #category = 'dress'
@@ -27,30 +27,19 @@ IR_PARAMS = {'gpu_id': '0',
 
 if __name__ == "__main__":
 
+    garment = None
+    feedback = None
     print("="*50)
     print(IR_PARAMS)
     ir_model = load_model(IR_PARAMS)
-   
+    category, feedback = ir_show_keywords()
+    IR_PARAMS['category'] = category
+    index_ids, index_feats = load_gallery(ir_model, IR_PARAMS)
 
-    index_ids, index_feats = load_gallery(gpu_id = IR_PARAMS['gpu_id'], 
-                                    maualSeed = IR_PARAMS['manualSeed'], 
-                                    data_root = IR_PARAMS['data_root'],
-                                    test_root = IR_PARAMS['test_root'],
-                                    img_size = IR_PARAMS['img_size'], 
-                                    model = ir_model
-                                    )
-
-    garment = None
-    feedback = None
     while True:
-        # show ir_show_keyword()
-        if garment is None:
-            # show keywords and get user choice
-            category, feedback = ir_show_keywords()
-
         # retrieval results - possibly with text attributes
-        garment = ir_find_match(feedback, garment, category, ir_model, index_ids, index_feats, IR_PARAMS)
-
+        garment = ir_find_match(feedback, garment, ir_model, index_ids, index_feats, IR_PARAMS)
+        feedback = 'I want black one with longer sleeves'
         # garment transfer, show results
         print(garment)
 

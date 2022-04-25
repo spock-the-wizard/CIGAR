@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
-sys.path.append('../')
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import random
 random.seed(1234)
 import operator
@@ -28,7 +28,7 @@ import torchvision.datasets as D
 import torchvision.models as M
 import torchvision.transforms.functional as TF
 
-from src.transform import PaddedResize
+from train.src.transform import PaddedResize
 
 
 class FashionIQDataset(data.Dataset):
