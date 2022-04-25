@@ -1,6 +1,14 @@
 import numpy as np
-from torch import manual_seed
+import os
+import pickle
+from torch import imag, manual_seed
 from image_retrieval.retrieval_model.ours.tools.find_target import find_target
+
+attribute_dict = {'dress': ['wash', 'clean', 'sleeve', 'sleeveless', 'print', 'fit', 'cotton', 'maxi', 'printed', 'shoulder', 'lace', 'zipper', 'hem', 'neckline', 'please', 'strapless', 'chiffon', 'stretch', 'party', 'v-neck'],
+'shirt': ['cotton', 'wash', 'shirt', 'sleeve', 'fit', 'printed', 'logo', 'long sleeve', 'print', 'collar', 'pocket', 'button', 'soft', 'graphic', 'woven', 'classic', 'polo', 'crew', 'hem', 'stripe'],
+'toptee': ['wash', 'cotton', 'sleeve', 'shirt', 'print', 'fit', 'printed', 'long sleeve', 'scoop', 'soft', 'button', 'clean', 'hem', 'v-neck', 'knit', 'neckline', 'sleeveless', 'lace', 'shoulder', 'tunic'],
+'bottom': ['denim', 'print', 'skinny', 'floral', 'wash', 'drawstring', 'mini', 'pencil', 'distressed', 'lace', 'leather', 'pleated', 'knit', 'classic', 'skater', 'maxi', 'faux', 'striped', 'acid', 'cotton']}
+
 def ir_show_keywords():
     """
     Input: X
@@ -9,12 +17,12 @@ def ir_show_keywords():
 
     In this function, we should show 
     """
-    categories = ['dress', 'shirt', 'toptee', 'pants']
+    categories = ['dress', 'shirt', 'toptee', 'bottom']
     for idx, keyword in enumerate(categories):
         print(f"{idx}. {keyword}")
     category_idx = int(input("Select one category: ")) # We assume user input has format like "1,2,3,4"
     selected_category = categories[category_idx]
-    candidate_keywords = ["leaf", "leather", "leather mini", "leather skater", "leopard"]
+    candidate_keywords = attribute_dict[selected_category]
     print("=== List of attributes to select ===")
     for idx, keyword in enumerate(candidate_keywords):
         print(f"{idx}. {keyword}")
@@ -23,6 +31,11 @@ def ir_show_keywords():
     selected_keywords = [candidate_keywords[num] for num in selected_keywords_number]
     print(f"Selected keywords are: {selected_keywords}")
     return selected_category, selected_keywords
+
+def load_pickle(root, fname):
+    with open(os.path.join(root, 'attr_to_img', fname), 'rb') as f:
+        att2cloth = pickle.load(f)
+        return att2cloth
 
 def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params):
     """
@@ -36,33 +49,33 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
     # image examples(from attribute.json files)
     if isinstance(feedback, list):
         # Initial turn
-        att2cloth = dict() 
-        att2cloth['halter'] = ['B007E66YTO','B009D4L87S','B005930UCQ']
-        att2cloth['dress'] = ['B007E66YTO', 'B005930UCQ']
-        att2cloth['leopard'] = ['B007E66YTO', 'B009D4L87S', 'B005930UCQ', 'B0083CJGU2', 'B00DQGVNLK']
-        att2cloth['leather skater'] = ['B005930UCQ', 'B007E66YTO']
-        att2cloth['leather mini'] = ['B005930UCQ', 'B007E66YTO']
-        att2cloth['leaf'] = ['B009D4L87S', 'B005930UCQ', 'B0083CJGU2']
-        att2cloth['leather'] = ['B007E66YTO', 'B009D4L87S', 'B005930UCQ', 'B0083CJGU2', 'B00DQGVNLK']
-
-        all_clothes = ['B007E66YTO','B009D4L87S','B005930UCQ','B0083CJGU2','B00DQGVNLK']
-        clothes = {k:0 for k in all_clothes}
+        att2cloth = load_pickle(params['data_root'], '%s_attr_to_imgs.nopickle'%params['category'])
+        
+        all_clothes = dict()
         for key in feedback:
             matches = att2cloth[key]
             for match in matches:
-                clothes[match] += 1
-        max_score = max(clothes.items(), key=lambda x: x[1])[1]
+                if match in all_clothes:
+                    all_clothes[match] += 1
+                else:
+                    all_clothes[match] = 1
+        
+        max_score = max(all_clothes.items(), key=lambda x: x[1])[1]
         imgs = list()
-        for key, score in clothes.items():
+        for key, score in all_clothes.items():
             if score == max_score:
                 imgs.append(key)
+
+        np.random.shuffle(imgs)
+        if len(imgs) > 10:
+            imgs = imgs[:10]
         # match하는걸 보여줌
         # user input 받음
         # 선택된 imageid return
-        for img in imgs:
-            print(img)
+        for i, img in enumerate(imgs):
+            print('%d: %s'%(i, img))
         selected = int(input('Please select one item you like the most: '))
-        return  imgs[selected]# We should return imageid!
+        return imgs[selected]# We should return imageid!
     elif isinstance(feedback, str):
         # Turn other than 
         top_k = 10
