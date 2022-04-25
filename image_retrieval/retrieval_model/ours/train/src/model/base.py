@@ -1,5 +1,7 @@
 """Class for text data."""
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import math
 import string
 import numpy as np
@@ -10,9 +12,9 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as M
-import src.model.resnet as resnet
+import train.src.model.resnet as resnet
 
-from src.spellchecker import SpellChecker
+from train.src.spellchecker import SpellChecker
 from torch.autograd import Variable
 
 __VERBOSE__ = False

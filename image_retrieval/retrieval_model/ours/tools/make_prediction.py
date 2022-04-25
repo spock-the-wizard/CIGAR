@@ -41,7 +41,6 @@ def init_env():
         torch.cuda.manual_seed_all(args.manualSeed)
         torch.backends.cudnn.benchmark = True           # speed up training.
 
-        
 score = dict()
 hyperopt = dict()
 

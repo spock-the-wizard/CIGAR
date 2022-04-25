@@ -1,6 +1,6 @@
 import numpy as np
-
-
+from torch import manual_seed
+from image_retrieval.retrieval_model.ours.tools import find_target
 def ir_show_keywords():
     """
     Input: X
@@ -9,6 +9,11 @@ def ir_show_keywords():
 
     In this function, we should show 
     """
+    categories = ['dress', 'shirt', 'toptee', 'pants']
+    for idx, keyword in enumerate(categories):
+        print(f"{idx}. {keyword}")
+    category_idx = (input("Select one category: ")) # We assume user input has format like "1,2,3,4"
+    selected_category = categories[category_idx]
     candidate_keywords = ["leaf", "leather", "leather mini", "leather skater", "leopard"]
     print("=== List of attributes to select ===")
     for idx, keyword in enumerate(candidate_keywords):
@@ -17,9 +22,9 @@ def ir_show_keywords():
     selected_keywords_number = [int(attribute) for attribute in selected_attributes.split(",")]
     selected_keywords = [candidate_keywords[num] for num in selected_keywords_number]
     print(f"Selected keywords are: {selected_keywords}")
-    return selected_keywords
+    return selected_category, selected_keywords
 
-def ir_find_match(feedback, previous_img=None):
+def ir_find_match(feedback, previous_img, category, model, index_ids, index_feats, params):
     """
     Input:
         feedback: If initial turn, it would be attributes selected. type: list(str)
@@ -60,13 +65,18 @@ def ir_find_match(feedback, previous_img=None):
         return  imgs[selected]# We should return imageid!
     elif isinstance(feedback, str):
         # Turn other than 
-        top_k = 2
-        def model(feedback, imgs):
-            imgs = [1,2,3,4,5]
-            new_imgs = np.random.choice(imgs, size=top_k)
-            return new_imgs
-        
-        new_imgs = model(feedback, previous_img)
+        top_k = 10
+        new_imgs = find_target(gpu_id=params.gpu_id,
+                        manualseed=params.manualSeed,
+                        data_root=params.data_root,
+                        test_root=params.test_root,
+                        img_size=params.img_size,
+                        model = model,
+                        index_ids=index_ids,
+                        index_feats=index_feats,
+                        c_id=previous_img,
+                        category= category,
+                        caption= feedback)
         print(f"Our model searched {top_k} clothes for you")
         for img in new_imgs:
             print(f"Image is displayed here: {img}")

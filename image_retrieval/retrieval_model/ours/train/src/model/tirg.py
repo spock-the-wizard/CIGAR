@@ -2,7 +2,9 @@ import math
 import string
 import random
 import numpy as np
-
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import torch
 import torchvision
 import torch.nn as nn
@@ -10,10 +12,10 @@ import torch.nn.functional as F
 import torchvision.models as M
 from torch.autograd import Variable
 
-import src.model.resnet as resnet
-from src.model.fusion import ConCatModule
-from src.model.base import ImageEncoderTextEncoderBase
-from src.loss import (NormalizationLayer,
+import train.src.model.resnet as resnet
+from train.src.model.fusion import ConCatModule
+from train.src.model.base import ImageEncoderTextEncoderBase
+from train.src.loss import (NormalizationLayer,
                       BatchHardTripletLoss)
  
 
