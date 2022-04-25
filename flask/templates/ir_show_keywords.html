@@ -1,0 +1,72 @@
+<!doctype html>
+<link rel="shortcut icon" href="#">
+<title>Welcome to Virtual Try-On System!</title>
+
+<h1>Welcome to Virtual Try-On System!</h1>
+
+
+<div class="button">
+    <label for="UserName">
+        === List of attributes to select ===
+    </label>
+</div>
+<input type="text" id="UserName" name="UserName" required size="10">
+
+<form method="post" enctype="multipart/form-data">
+    <div class="button">
+        <label for="UserImage">
+            Upload your image:
+        </label>
+    </div>
+    <input type="file" id="UserImage" name="UserImage" accept="image/*" onchange="loadFile(this)">
+</form>
+
+<br>
+
+<a href="keywords">
+    <button>Submit</button>
+  </a>
+
+
+<br>
+
+<a href="/">
+    <button>Go to Home</button>
+  </a>
+
+<script>
+
+var actions = []
+
+function saveUserName() {
+  document.getElementById("t1").innerHTML=document.getElementById("t2").innerHTML;
+}
+
+function saveUserImage() {
+  document.getElementById("t1").innerHTML=document.getElementById("t2").innerHTML;
+}
+
+function process() {
+    //check start and end time
+    const f1 = document.getElementById("t1").innerText;
+    const f2 = document.getElementById("t2").innerText;
+    if(f1<f2)
+    {
+        actions.push([f1,f2])
+        console.log(actions)
+        document.getElementById("actions").innerHTML=actions
+        //call flask function
+        // params: f1, f2, video
+    }
+}
+
+function saveToLibrary() {
+    //check start and end time
+    const t1 = document.getElementById("t1").innerText;
+    const t2 = document.getElementById("t2").innerText;
+    const name = document.getElementById("name").value;
+    console.log(name)
+    if(t1 < t2 && name)
+        document.getElementById("time-res").innerHTML = name //'Time Confirm?'
+}
+</script>
