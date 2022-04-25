@@ -15,7 +15,7 @@ USER_IMG_DIR = './data/01_user_image'
 IMAGE_RETREIVAL_DIR = './data/02_image_retrieval'
 IR_PARAMS = {'gpu_id': '0', 
             'manualSeed': int(time.time()), 
-            'data_root': '/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/data',
+            'data_root': '/home/piai/chan/largescale_multimedia/project/CIGAR/image_retrieval/retrieval_model/data',
             'test_root': '/home/piai/chan/largescale_multimedia/project/FashionIQChallenge2020/ours/train',
             'expr_name': 'devel', 
             'image_size': 224}  # data_root, test_root 서버 경로로 바꿔야함!!

@@ -366,7 +366,6 @@ class ImageEncoderTextEncoderBase(nn.Module):
             )
 
     def extract_image_feature(self, x):
-        print(x.shape)
         x = self.model['backbone'](x)
         x = self.model['image_encoder'](x)
         return x
