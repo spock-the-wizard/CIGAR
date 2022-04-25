@@ -107,7 +107,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--vector_dir", help = "Path to the directory containing the vectors generated from attributes", default ="/home/deokhk/coursework/CIGAR/data/image_retrieval")
-    parser.add_argument("--vector_type", choices=["N-hot", "Bert", "Word2Vec"], help="Attribute vectors type", default="N-hot")
+    parser.add_argument("--vector_type", choices=["one-hot", "Bert", "Word2Vec"], help="Attribute vectors type", default="one-hot")
     parser.add_argument("--fashioniq_dir", help = "Path to the fasioniq caption dataset", default="/home/deokhk/coursework/fashion-iq/data/captions/")
     parser.add_argument("--save_dir", help="path to the directory to save the generated data", default="/home/deokhk/coursework/CIGAR/data/image_retrieval/generated_captions/")
     parser.add_argument("--similarity_threshold", default=0.0, type=float)

@@ -36,13 +36,24 @@ def main():
     init_env()
 
     # train/val data loader
-    from src.dataset import FashionIQTrainValDataset, FashionIQTestDataset
-    train_dataset = FashionIQTrainValDataset(
-        data_root=args.data_root,
-        image_size=args.image_size,
-        split='train',
-        target=args.target,
-    )
+    from src.dataset import FashionIQTrainValDataset, FashionIQTestDataset, DeepFashionTrainDataset
+    if args.target == "lower":
+        train_dataset = DeepFashionTrainDataset(
+            deepfashion_datapath = args.data_root,
+            image_size=args.image_size,
+            split='train',
+            target=args.target,
+            caption_directory = args.caption_directory,
+            caption_file_name = args.caption_file_name
+        )
+    else:
+        train_dataset = FashionIQTrainValDataset(
+            data_root=args.data_root,
+            image_size=args.image_size,
+            split='train',
+            target=args.target,
+        )
+
     train_loader = train_dataset.get_loader(batch_size=args.batch_size)
 
     if (args.target == 'all') or (args.target is None):
@@ -52,14 +63,17 @@ def main():
 
     test_loader = dict()
     for target in targets:
-        test_dataset = FashionIQTestDataset(
-            test_root=args.test_root,
-            data_root=args.data_root,
-            image_size=args.image_size,
-            split='val',
-            target=target,
-        )
-        test_loader[target] = test_dataset.get_loader(batch_size=args.batch_size)
+        if args.target == "lower":
+            pass
+        else:
+            test_dataset = FashionIQTestDataset(
+                test_root=args.test_root,
+                data_root=args.data_root,
+                image_size=args.image_size,
+                split='val',
+                target=target,
+            )
+            test_loader[target] = test_dataset.get_loader(batch_size=args.batch_size)
 
     # model
     if args.method == 'text-only':
@@ -74,6 +88,7 @@ def main():
     elif args.method == 'tirg':
         from src.model.tirg import TIRG
         model = TIRG(args=args,
+                     test_root=args.test_root,
                      backbone=args.backbone,
                      texts=train_dataset.get_all_texts(),
                      text_method=args.text_method,
@@ -112,13 +127,20 @@ def main():
     summary_writer = SummaryWriter(log_path)
 
     # trainer
-    from src.runner import Trainer, Evaluator
-    trainer = Trainer(args=args,
-                      data_loader=train_loader,
-                      model=model,
-                      summary_writer=summary_writer)
+    from src.runner import Trainer, Evaluator, DeepFashionTrainer
+    if args.target != "lower":
+        trainer = Trainer(args=args,
+                        data_loader=train_loader,
+                        model=model,
+                        summary_writer=summary_writer)
+    else:
+        trainer = DeepFashionTrainer(args=args,
+                        data_loader=train_loader,
+                        model=model,
+                        summary_writer=summary_writer)
 
-    evaluator = Evaluator(args=args,
+    if args.target != "lower":
+        evaluator = Evaluator(args=args,
                           data_loader=test_loader,
                           model=model,
                           summary_writer=summary_writer,
@@ -128,7 +150,8 @@ def main():
     for epoch in range(args.epochs):
         epoch = epoch + 1
         trainer.train(epoch)
-        evaluator.test(epoch)
+        if args.target != "lower":
+            evaluator.test(epoch)
 
     print('Congrats! You just finished training.')
 
@@ -151,7 +174,7 @@ if __name__ == '__main__':
 
     # common training parameters
     parser.add_argument('--method', default='tirg', type=str, help='method')
-    parser.add_argument('--target', default='all', type=str, help='target (dress | shirt | toptee)')
+    parser.add_argument('--target', default='all', type=str, help='target (dress | shirt | toptee | lower)')
     parser.add_argument('--epochs', default=100, type=int)
     parser.add_argument('--print_freq', default=1, type=int)
     parser.add_argument('--batch_size', default=8, type=int, help='train batchsize')
@@ -163,9 +186,9 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay_factor', default=0.4747, type=float)
     parser.add_argument('--lr_decay_steps', default="10,20,30,40,50,60,70", type=str)
     parser.add_argument('--test_root', required=True, type=str, help='directory where ')
-
+    parser.add_argument('--caption_directory', type=str, help="Path to the caption directory")
+    parser.add_argument('--caption_file_name', type=str, help="Caption file name used for training")
     ## parse and save args.
     args, _ = parser.parse_known_args()
-
     ## train
     main()

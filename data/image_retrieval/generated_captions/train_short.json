@@ -1,0 +1,128 @@
+[
+    {
+        "candidate": "img/Oversized_Dot_Print_Sweatshorts/img_00000010.jpg",
+        "captions": [
+            "is solid black with no sleeves",
+            "is black with straps"
+        ],
+        "similarity": 0.5434663593769073,
+        "target": "img/Lacy_Rose_PJ_Shorts/img_00000039.jpg"
+    },
+    {
+        "candidate": "img/Buttoned_Woven_Joggers/img_00000019.jpg",
+        "captions": [
+            "3/4 sleeve black and white dress and more top covered",
+            "has short sleeve and is black color"
+        ],
+        "similarity": 0.6349130570888519,
+        "target": "img/Lace-Hem_Floral_PJ_Shorts/img_00000025.jpg"
+    },
+    {
+        "candidate": "img/Lace-Hem_Floral_PJ_Shorts/img_00000025.jpg",
+        "captions": [
+            "is patterned and has a halter neckline",
+            "is black with floral patterns"
+        ],
+        "similarity": 0.660111129283905,
+        "target": "img/Zippered_Denim_Shorts/img_00000060.jpg"
+    },
+    {
+        "candidate": "img/Belted_High-Waisted_Shorts/img_00000064.jpg",
+        "captions": [
+            "is a long maxi dress",
+            "is an a-line print"
+        ],
+        "similarity": 0.49398189783096313,
+        "target": "img/Striped_Box-Pleated_Skirt/img_00000038.jpg"
+    },
+    {
+        "candidate": "img/Striped_Colorblock_Sweatpants/img_00000004.jpg",
+        "captions": [
+            "is less sexy but more colorful",
+            "is lighter"
+        ],
+        "similarity": 0.5818665027618408,
+        "target": "img/Pintucked_High-Waisted_Shorts/img_00000019.jpg"
+    },
+    {
+        "candidate": "img/Lace-Hem_Floral_PJ_Shorts/img_00000025.jpg",
+        "captions": [
+            "is longer and black wit a fitted waist",
+            "is black with straps"
+        ],
+        "similarity": 0.5501468181610107,
+        "target": "img/Eyelash_Lace_Maxi_Skirt/img_00000041.jpg"
+    },
+    {
+        "candidate": "img/Lace-Hem_Floral_PJ_Shorts/img_00000025.jpg",
+        "captions": [
+            "has long sleeves and stripes",
+            "is striped with sleeves"
+        ],
+        "similarity": 0.5599592626094818,
+        "target": "img/Baroque_Lace_Shorts/img_00000030.jpg"
+    },
+    {
+        "candidate": "img/Classic_Woven_Joggers/img_00000008.jpg",
+        "captions": [
+            "is longer and yellow",
+            "belted maxi dress in block colors of yellow and green"
+        ],
+        "similarity": 0.374275267124176,
+        "target": "img/Colorblock_High_Performance_Shorts/img_00000007.jpg"
+    },
+    {
+        "candidate": "img/Smocked_Bandana_Print_Skirt/img_00000016.jpg",
+        "captions": [
+            "is a back patterned dress",
+            "is not as bright in color"
+        ],
+        "similarity": 0.537280797958374,
+        "target": "img/Tassel-Trimmed_Shorts/img_00000049.jpg"
+    },
+    {
+        "candidate": "img/Herringbone-Patterned_Cutout_Shorts/img_00000014.jpg",
+        "captions": [
+            "has short sleeves and is longer and more flowing",
+            "has longer sleeves"
+        ],
+        "similarity": 0.4763900637626648,
+        "target": "img/Crochet-Hem_Shorts/img_00000037.jpg"
+    },
+    {
+        "candidate": "img/Floral_Lace_Skater_Skirt/img_00000064.jpg",
+        "captions": [
+            "is real colored and sleeveless",
+            "is blue with straps"
+        ],
+        "similarity": 0.4309028387069702,
+        "target": "img/Floral_Lace_Skater_Skirt/img_00000061.jpg"
+    },
+    {
+        "candidate": "img/Faux_Leather_Zippered_Skirt/img_00000038.jpg",
+        "captions": [
+            "is dark with straps",
+            "has straps and a tighter fit"
+        ],
+        "similarity": 0.32915449142456055,
+        "target": "img/Embroidered_Faux_Gem_Shorts/img_00000009.jpg"
+    },
+    {
+        "candidate": "img/Embroidered_Faux_Gem_Shorts/img_00000002.jpg",
+        "captions": [
+            "is brighter in color",
+            "is green and more revealing"
+        ],
+        "similarity": 0.6603750586509705,
+        "target": "img/Heathered_High-Waisted_Shorts/img_00000013.jpg"
+    },
+    {
+        "candidate": "img/Abstract_Print_Maxi_Skirt/img_00000038.jpg",
+        "captions": [
+            "is shorter and lighter",
+            "is tank toped and full bottom"
+        ],
+        "similarity": 0.3319573402404785,
+        "target": "img/Distressed_Bleach_Wash_Denim_Shorts/img_00000030.jpg"
+    }
+]

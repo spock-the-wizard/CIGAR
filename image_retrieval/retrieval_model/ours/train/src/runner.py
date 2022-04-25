@@ -73,6 +73,84 @@ class Trainer(object):
                 self.__logging__(log_data)
 
 
+class DeepFashionTrainer(object):
+    def __init__(self,
+                 args,
+                 data_loader,
+                 model,
+                 summary_writer):
+        self.args=args
+        self.data_loader=data_loader
+        self.model=model
+        self.summary_writer=summary_writer
+
+        self.processed_images = 0
+        self.global_step = 0
+        self.best_loss = 99999.
+        self.repo_path = os.path.join('./repo', args.expr_name)
+        os.makedirs(self.repo_path, exist_ok=True)
+
+
+    def __adjust_lr__(self, epoch, warmup=True):
+        lr = self.args.lr * self.args.batch_size / 16.0
+        if warmup:
+            warmup_images = 10000
+            lr = min(self.processed_images * lr / float(warmup_images), lr)
+        for e in self.args.lr_decay_steps:
+            if epoch >= e:
+                lr *= self.args.lr_decay_factor
+        self.model.adjust_lr(lr)
+        self.cur_lr = lr
+
+    def __logging__(self, log_data):
+        msg = f'[Train][{self.args.expr_name}]'
+        msg += f'[Epoch: {self.epoch}]'
+        msg += f'[Lr:{self.cur_lr:.6f}]'
+        log_data['lr'] = self.cur_lr
+        for k, v in log_data.items():
+            if not self.summary_writer is None:
+                self.summary_writer.add_scalar(k, v, self.global_step)
+            if isinstance(v, float):
+                msg += f' {k}:{v:.6f}'
+            else:
+                msg += f' {k}:{v}'
+        print(msg)
+
+    def train(self, epoch):
+        self.epoch = epoch
+        self.model.train()
+
+        for bidx, input in enumerate(tqdm(self.data_loader, desc='Train')):
+            self.global_step += 1
+            self.processed_images += input[0][0].size(0)
+            self.__adjust_lr__(epoch, warmup=self.args.warmup)
+
+            # data
+            input[0][0] = Variable(input[0][0].cuda())      # input[0] = (x_c, c_c, data['c_id'])
+            input[0][1] = Variable(input[0][1].cuda())
+            input[1][0] = Variable(input[1][0].cuda())      # input[1] = (x_t, c_t, data['t_id'])
+            input[1][1] = Variable(input[1][1].cuda())
+            input[2][0] = Variable(input[2][0].cuda())      # input[2] = (we, w_key, text)
+            input[3] = Variable(input[3].cuda())            # input[3] = (ie)
+
+            # forward and update
+            output = self.model(input)
+            log_data = self.model.update(output, input)
+            if (bidx % self.args.print_freq) == 0:
+                self.__logging__(log_data)
+
+        cur_epoch_loss = log_data['loss']
+        if cur_epoch_loss < self.best_loss:
+            self.best_loss = cur_epoch_loss
+            with open(os.path.join(self.repo_path, 'args.json'), 'w', encoding='utf-8') as f:
+                json.dump(vars(self.args), f, indent=4, ensure_ascii=False)
+            state = { 'loss': self.best_loss }
+            file_name, file_type = (self.args.caption_file_name).split(".")
+            self.model.save(os.path.join(self.repo_path, f'best_model_lower_{file_name}.pth'), state)
+
+
+
+
 class Evaluator(object):
     def __init__(self,
                  args,

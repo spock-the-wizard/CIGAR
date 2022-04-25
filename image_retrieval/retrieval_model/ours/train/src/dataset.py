@@ -128,6 +128,103 @@ class FashionIQDataset(data.Dataset):
         raise NotImplementedError()
 
 
+class DeepFashionTrainDataset(FashionIQDataset):
+    def __init__(self, deepfashion_datapath,
+                 image_size,
+                 split,
+                 target,
+                 caption_directory,
+                 caption_file_name):
+        self.caption_directory = caption_directory
+        self.caption_file_name = caption_file_name
+        super(DeepFashionTrainDataset, self).__init__(deepfashion_datapath, image_size, split, target)
+        
+    def __load_data__(self):
+        with open('assets/sentence_embedding/embeddings.pkl', 'rb') as f:
+            self.we = pickle.load(f)
+        with open('assets/image_embedding/embeddings.pkl', 'rb') as f:
+            self.ie = pickle.load(f)
+
+        print('[Dataset] load caption annotations: {}'.format(self.caption_directory))
+        self.dataset = []
+        self.all_texts = []
+        self.cls2idx = dict()
+        self.idx2cls = list()
+
+        if (self.target == 'all') or (self.target is None):
+            targets = self.all_targets
+        else:
+            targets = [self.target]
+
+        for t in targets:
+            cap_file = self.caption_file_name
+
+            print(f'[Dataset] load annotation file: {cap_file}')
+            full_cap_path = os.path.join(self.caption_directory, cap_file)
+            assert os.path.exists(full_cap_path)
+            with open(full_cap_path, 'r') as f:
+                data = json.load(f)
+                for i, d in enumerate(tqdm(data)):
+                    c_id = d['candidate']
+                    t_id = d['target']
+
+                    if not c_id in self.cls2idx:
+                        self.cls2idx[c_id] = len(self.cls2idx)
+                        self.idx2cls.append(c_id)
+                    if not t_id in self.cls2idx:
+                        self.cls2idx[t_id] = len(self.cls2idx)
+                        self.idx2cls.append(t_id)
+
+                    self.all_texts.extend(d['captions'])
+                    text = [x.strip() for x in d['captions']]
+                    random.shuffle(text)
+                    text = '[CLS] ' + ' [SEP] '.join(text)
+                    we_key = f'{self.split}_{t}_{c_id}_{i}'
+                    c_img_path = os.path.join(self.data_root, c_id)
+                    t_img_path = os.path.join(self.data_root, t_id)
+                    if os.path.exists(c_img_path) and os.path.exists(t_img_path):
+                        _data = {
+                            'c_img_path': c_img_path,
+                            'c_id': c_id,
+                            't_img_path': t_img_path,
+                            't_id': t_id,
+                            'we_key': we_key,
+                            'text': text
+                        }
+
+                        self.dataset.append(_data)
+        self.dataset = np.asarray(self.dataset)
+
+    def __sample__(self, index):
+        data = self.dataset[index]
+        x_c = self.__load_pil_image__(data['c_img_path'])
+        c_c = self.cls2idx[data['c_id']]
+        x_t = self.__load_pil_image__(data['t_img_path'])
+        c_t = self.cls2idx[data['t_id']]
+
+        we_key = data['we_key']
+        if we_key in self.we:
+            we = torch.FloatTensor(self.we[data['we_key']])
+        else:
+            we = torch.zeros((600))
+
+        t_id = data['t_id']
+        if t_id in self.ie:
+            ie = torch.FloatTensor(self.ie[data['t_id']])
+        else:
+            ie = torch.zeros((2048))
+
+        if not self.transform is None:
+            x_c = self.transform(x_c)
+            x_t = self.transform(x_t)
+
+        return (
+            (x_c, c_c, data['c_id']),
+            (x_t, c_t, data['t_id']),
+            (we, data['we_key'], data['text']),
+            (ie)
+        )
+
 class FashionIQTrainValDataset(FashionIQDataset):
     def __init__(self, **kwargs):
         super(FashionIQTrainValDataset, self).__init__(**kwargs)
