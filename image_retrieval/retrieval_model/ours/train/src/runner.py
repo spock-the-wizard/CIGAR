@@ -145,7 +145,7 @@ class DeepFashionTrainer(object):
             with open(os.path.join(self.repo_path, 'args.json'), 'w', encoding='utf-8') as f:
                 json.dump(vars(self.args), f, indent=4, ensure_ascii=False)
             state = { 'loss': self.best_loss }
-            file_name, file_type = (self.args.caption_file_name).split(".")
+            file_name, file_type = (self.args.caption_file_name).split(".j")
             self.model.save(os.path.join(self.repo_path, f'best_model_lower_{file_name}.pth'), state)
 
 
