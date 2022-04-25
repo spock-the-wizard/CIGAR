@@ -9,6 +9,8 @@ from parser.extract_parse_map import * #simple_extractor import get_garment_clas
 from pose.extract_pose import *
 from dior.extract_vton import *
 
+import torch
+
 from torchvision.utils import save_image
 
 
@@ -38,6 +40,7 @@ def main(user_img, gar_img, pose_path=os.path.join(POSE_DIR,'pose.csv'),parse_di
     # extract pose
     print('='*50)
     print('[STEP 1. POSE] Pose Extraction')
+    pose_path = './pose.csv'
     extract_pose(items,pose_path)
 
     # Save parse map and get garment category 
@@ -62,6 +65,8 @@ def main(user_img, gar_img, pose_path=os.path.join(POSE_DIR,'pose.csv'),parse_di
     
 if __name__=="__main__":
     
+    # model_parser = torch.load('./parser/parser.pkl')
+    import pdb;pdb.set_trace()
     dummy_user_pth = os.path.join(USER_DIR,'test.png') #'01_user_image/test.jpg'
     dummy_garment_pth = os.path.join(GAR_DIR,'A.png') #'02_image_retreival/A.png'
     main(dummy_user_pth,dummy_garment_pth,parse_dir=PARSE_DIR) #None,None)

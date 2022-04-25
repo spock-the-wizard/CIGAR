@@ -4,7 +4,7 @@ from models.networks.block_extractor.block_extractor import BlockExtractor
 
 class FlowModel(DIORModel):
     def __init__(self, opt):
-        opt.frozen_flownet = False
+        opt.frozen_flownet = True #False
         DIORModel.__init__(self, opt)
         self.netE_opt = opt.netE
         self.visual_names = ['from_img', 'to_img', 'fake_B']

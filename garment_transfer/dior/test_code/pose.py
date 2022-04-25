@@ -44,14 +44,14 @@ model = DIORModel(opt)
 model.setup(opt)
 
 # load data
-from ..datasets.deepfashion_datasets import DFVisualDataset
-Dataset = DFVisualDataset
-ds = Dataset(dataroot=dataroot, dim=(256,176), n_human_part=8)
+# from ..datasets.deepfashion_datasets import DFVisualDataset
+# Dataset = DFVisualDataset
+# ds = Dataset(dataroot=dataroot, dim=(256,176), n_human_part=8)
 
 # preload a set of pre-selected models defined in "standard_test_anns.txt" for quick visualizations 
-inputs = dict()
-for attr in ds.attr_keys:
-    inputs[attr] = ds.get_attr_visual_input(attr)
+# inputs = dict()
+# for attr in ds.attr_keys:
+#     inputs[attr] = ds.get_attr_visual_input(attr)
     
 # define some tool functions for I/O
 def load_img(pid, ds):
