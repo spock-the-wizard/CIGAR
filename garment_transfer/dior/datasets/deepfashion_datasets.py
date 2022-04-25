@@ -8,7 +8,7 @@ import copy, os, collections
 import json
 from .human_parse_labels import get_label_map, DF_LABEL, YF_LABEL
 import pandas as pd
-from utils import pose_utils
+from ..utils import pose_utils
 
 TEST_PATCHES = [
     'chequered/chequered_0052.jpg','dotted/dotted_0072.jpg',

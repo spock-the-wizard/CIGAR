@@ -2,8 +2,8 @@ import os,sys,json
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from models.dior_model import DIORModel
-from utils.custom_utils import imsave
+from dior.models.dior_model import DIORModel
+from dior.utils.custom_utils import imsave
 
 import torch
 import numpy as np
@@ -44,7 +44,7 @@ model = DIORModel(opt)
 model.setup(opt)
 
 # load data
-from datasets.deepfashion_datasets import DFVisualDataset
+from ..datasets.deepfashion_datasets import DFVisualDataset
 Dataset = DFVisualDataset
 ds = Dataset(dataroot=dataroot, dim=(256,176), n_human_part=8)
 
@@ -55,7 +55,7 @@ for attr in ds.attr_keys:
     
 # define some tool functions for I/O
 def load_img(pid, ds):
-    # import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
     if isinstance(pid,str): # load pose from scratch
         return None, None, load_pose_from_json(pid)
     if len(pid[0]) < 10: # load pre-selected models
@@ -65,6 +65,7 @@ def load_img(pid, ds):
         pimg, parse, to_pose = person
         pimg, parse, to_pose = pimg[pid[1]], parse[pid[1]], to_pose[pid[1]]
     else: # load model from scratch
+        import pdb;pdb.set_trace()
         person = ds.get_inputs_by_key(pid[0])
         person = (i.cuda() for i in person)
         pimg, parse, to_pose = person

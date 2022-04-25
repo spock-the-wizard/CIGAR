@@ -1,7 +1,7 @@
 from .dior_base_model import *
-import utils.util as functions
-from utils.mask import Masks
-from models import external_functions
+from ..utils import util as functions
+from ..utils.mask import Masks
+from ..models import external_functions
 
 PID = [0,4,6,7] # bg, face, arm, leg (the first has to be bg and the second has to be face.)
 GID = [2,5,1,3] # hair, top, bottom, jacket
