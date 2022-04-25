@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import random
 random.seed(1234)
 import operator
@@ -28,7 +27,8 @@ import torchvision.datasets as D
 import torchvision.models as M
 import torchvision.transforms.functional as TF
 
-from train.src.transform import PaddedResize
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from src.transform import PaddedResize
 
 
 class FashionIQDataset(data.Dataset):
@@ -107,7 +107,7 @@ class FashionIQDataset(data.Dataset):
         '''get_loader
         '''
         batch_size = kwargs.get('batch_size', 16)
-        num_workers = kwargs.get('workers', 20)
+        num_workers = kwargs.get('workers', 4)
         shuffle = False
         drop_last = False
         if self.split == 'train':

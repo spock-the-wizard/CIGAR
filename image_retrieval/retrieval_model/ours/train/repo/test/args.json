@@ -1,0 +1,32 @@
+{
+    "gpu_id": "0",
+    "manualSeed": 1650864381,
+    "warmup": true,
+    "expr_name": "test",
+    "data_root": "/home/deokhk/coursework/",
+    "text_method": "lstm",
+    "fdims": 2048,
+    "method": "tirg",
+    "target": "lower",
+    "epochs": 100,
+    "print_freq": 1,
+    "batch_size": 8,
+    "image_size": 224,
+    "backbone": "resnet152",
+    "normalize_scale": 5.0,
+    "lr": 0.00011148,
+    "lrp": 0.48,
+    "lr_decay_factor": 0.4747,
+    "lr_decay_steps": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70
+    ],
+    "test_root": "/home/deokhk/coursework/CIGAR/image_retrieval/retrieval_model/ours/train",
+    "caption_directory": "/home/deokhk/coursework/CIGAR/data/image_retrieval/generated_captions",
+    "caption_file_name": "train_short.json"
+}

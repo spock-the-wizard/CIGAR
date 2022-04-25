@@ -12,9 +12,9 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as M
-import train.src.model.resnet as resnet
+import src.model.resnet as resnet
 
-from train.src.spellchecker import SpellChecker
+from src.spellchecker import SpellChecker
 from torch.autograd import Variable
 
 __VERBOSE__ = False
@@ -340,6 +340,7 @@ class ImageEncoderTextEncoderBase(nn.Module):
 
         if text_method == 'lstm':
             self.model['text_encoder'] = TextLSTMModel(
+                test_root=self.test_root,
                 fc_arch=fc_arch,
                 texts_to_build_vocab=texts,
                 word_embed_dim=self.in_feature_text,
@@ -366,7 +367,6 @@ class ImageEncoderTextEncoderBase(nn.Module):
             )
 
     def extract_image_feature(self, x):
-        print(x.shape)
         x = self.model['backbone'](x)
         x = self.model['image_encoder'](x)
         return x
