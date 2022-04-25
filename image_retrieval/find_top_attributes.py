@@ -135,7 +135,7 @@ def main(args):
     garment_category = ["dress", "shirt", "toptee", "bottom"]
     garment_attr_to_imgnames = [dress_attr_to_img_list, shirt_attr_to_img_list, toptee_attr_to_img_list, lower_attr_to_img_list]
     for category, data in zip(garment_category, garment_attr_to_imgnames):
-        file_name = f"{category}_attr_to_imgs.pickle"
+        file_name = f"{category}_attr_to_imgs.nopickle"
         path = os.path.join(args.save_path, file_name)
         with open(path, 'wb') as f:
             pickle.dump(data, f)
