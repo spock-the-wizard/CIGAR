@@ -423,6 +423,119 @@ class FashionIQTestDataset(FashionIQDataset):
 
         return (x, image_id)
 
+class DeepfashionTestDataset(FashionIQDataset):
+    def __init__(self, test_root, **kwargs):
+        self.test_root = test_root
+        super(DeepfashionTestDataset, self).__init__(**kwargs)
+
+    def load_index(self):
+        with open(self.caption_path, 'r') as f:
+            tmp = json.load(f)
+        item_set = set()
+        for elem in tmp:
+            item_set.add(elem["candidate"])
+            item_set.add(elem["target"])
+        return np.asarray(list(item_set))
+
+    def __load_data__(self):
+        with open(os.path.join(self.test_root, 'assets/sentence_embedding/embeddings.pkl'), 'rb') as f:
+            self.we = pickle.load(f)
+        self.index_dataset = self.load_index()
+
+        print('[Dataset] load caption annotations: {}'.format(self.data_root))
+        self.query_dataset = []
+        self.all_texts = []
+        self.cls2idx = dict()
+        self.idx2cls = list()
+        print(f'[Dataset] load annotation file: {self.args.deepfashion_caption_path}')
+        with open(os.path.join(self.args.deepfashion_caption_path), 'r') as f:
+            data = json.load(f)
+            for i, d in enumerate(tqdm(data)):
+                if not 'target' in d:
+                    d['target'] = d['candidate']  # dummy
+
+                c_id = d['candidate']
+                t_id = d['target']
+
+                if not c_id in self.cls2idx:
+                    self.cls2idx[c_id] = len(self.cls2idx)
+                    self.idx2cls.append(c_id)
+                if not t_id in self.cls2idx:
+                    self.cls2idx[t_id] = len(self.cls2idx)
+                    self.idx2cls.append(t_id)
+
+                self.all_texts.extend(d['captions'])
+                text = [x.strip() for x in d['captions']]
+                random.shuffle(text)
+                text = '[CLS] ' + ' [SEP] '.join(text)
+
+                we_key = f'{self.split}_{self.target}_{c_id}_{i}'
+                c_img_path = os.path.join(self.data_root, c_id)
+                t_img_path = os.path.join(self.data_root, t_id)
+                if os.path.exists(c_img_path) and os.path.exists(t_img_path):
+                    _data = {
+                        'c_img_path': c_img_path,
+                        'c_id': c_id,
+                        't_img_path': t_img_path,
+                        't_id': t_id,
+                        'we_key': we_key,
+                        'text': text
+                    }
+
+                    self.query_dataset.append(_data)
+        self.query_dataset = np.asarray(self.query_dataset)
+
+    def set_mode(self, mode):
+        assert mode in ['query', 'index']
+        self.mode = mode
+
+    def __len__(self):
+        if self.mode == 'query':
+            return len(self.query_dataset)
+        else:
+            return len(self.index_dataset)
+
+    def __print_status__(self):
+        print('=========================')
+        print('Data Statistics:')
+        print(f'{self.split} Index Data Size: {len(self.index_dataset)}')
+        print(f'{self.split} Query Data Size: {len(self.query_dataset)}')
+        print('=========================')
+
+    def __sample__(self, index):
+        if self.mode == 'query':
+            return self.__sample_query__(index)
+        else:
+            return self.__sample_index__(index)
+
+    def __sample_query__(self, index):
+        data = self.query_dataset[index]
+        x_c = self.__load_pil_image__(data['c_img_path'])
+        c_c = self.cls2idx[data['c_id']]
+        x_t = self.__load_pil_image__(data['t_img_path'])
+        c_t = self.cls2idx[data['t_id']]
+        we = torch.FloatTensor(self.we[data['we_key']])
+
+        if not self.transform is None:
+            x_c = self.transform(x_c)
+            x_t = self.transform(x_t)
+
+        return (
+            (x_c, c_c, data['c_id']),
+            (x_t, c_t, data['t_id']),
+            (we, data['we_key'], data['text']),
+        )
+
+    def __sample_index__(self, index):
+        image_id = self.index_dataset[index]
+        x = self.__load_pil_image__(os.path.join(self.data_root, f'images/{image_id}.jpg'))
+
+        if not self.transform is None:
+            x = self.transform(x)
+
+        return (x, image_id)
+
+
 
 class FashionIQValIDDataset(FashionIQDataset):
     def __init__(self,
@@ -593,3 +706,113 @@ class FashionIQUserDataset(FashionIQDataset):
             x = self.transform(x)
 
         return (x, image_id)
+
+
+class DeepFashionUserDataset(FashionIQDataset):
+    def __init__(self, test_root, candidate, caption, **kwargs):
+        self.test_root = test_root
+        self.candidate = candidate
+        self.caption = caption
+        super(FashionIQUserDataset, self).__init__(**kwargs)
+
+    def load_index(self):
+        with open(self.caption_path, 'r') as f:
+            tmp = json.load(f)
+        item_set = set()
+        for elem in tmp:
+            item_set.add(elem["candidate"])
+            item_set.add(elem["target"])
+        return np.asarray(list(item_set))
+
+    #we에서 sentence embedding을 찾는게 아니라 모델로부터 직접 받아야함..
+    def __load_data__(self):
+        #with open(os.path.join(self.test_root, 'assets/sentence_embedding/embeddings.pkl'), 'rb') as f:
+        #    self.we = pickle.load(f)
+
+        #caption 안에 들어있는 file 이름들 불러오기
+        self.index_dataset = self.load_index()
+
+        # 어차피 query image랑 caption은 1개 -> cls2idx/idx2cls 필요없음
+        print('[Dataset] load caption annotations: {}'.format(self.data_root))
+        self.query_dataset = []
+        self.all_texts = []
+        #self.cls2idx = dict()
+        #self.idx2cls = list()
+        c_id = self.candidate # In case of Deepfashion, c_id has a form like "img/Oversized_Dot_Print_Sweatshorts/img_00000010.jpg"
+        #t_id = self.candidate   #어차피 target은 안쓰임 place holder...
+        #if not c_id in self.cls2idx:
+        #    self.cls2idx[c_id] = len(self.cls2idx)
+        #    self.idx2cls.append(c_id)
+        #if not t_id in self.cls2idx:
+        #    self.cls2idx[t_id] = len(self.cls2idx)
+        #    self.idx2cls.append(t_id)
+
+        # all_texts 는 vocab을 만드는 기준이 된다(이미 glove vectors가 있으므로 필요한 단어들만 가지고 vocab을 만든다)
+        self.all_texts.extend(self.caption)
+        text = [self.caption.strip()]
+        #random.shuffle(text)
+        text = '[CLS] ' + ' [SEP] '.join(text)
+
+        # we(sentence embedding)를 더이상 쓰지 않으므로 key도 필요 없다
+        # we_key = f'{self.split}_{self.target}_{c_id}'
+        _data = {
+                    'c_img_path': os.path.join(self.data_root, c_id),
+                    'c_id': c_id,
+                    #'t_img_path': os.path.join(self.data_root, f"images/{t_id}.jpg"),
+                    #'t_id': t_id,
+                    #'we_key': we_key,
+                    'text': text
+                }
+        self.query_dataset.append(_data)
+        self.query_dataset = np.asarray(self.query_dataset)
+
+    def set_mode(self, mode):
+        assert mode in ['query', 'index']
+        self.mode = mode
+
+    def __len__(self):
+        if self.mode == 'query':
+            return len(self.query_dataset)
+        else:
+            return len(self.index_dataset)
+
+    def __print_status__(self):
+        print('=========================')
+        print('Data Statistics:')
+        print(f'Index Data Size (Pants): {len(self.index_dataset)}')
+        print(f'Query Data Size (Pants): {len(self.query_dataset)}')
+        print('=========================')
+
+    def __sample__(self, index):
+        if self.mode == 'query':
+            return self.__sample_query__(index)
+        else:
+            return self.__sample_index__(index)
+
+    def __sample_query__(self, index):
+        data = self.query_dataset[index]
+        x_c = self.__load_pil_image__(data['c_img_path'])
+        c_c = 0                             # place holder
+        we = data['text']                   # place holder
+        w_key = 'user_feedback_text'       # place holder
+        #c_c = self.cls2idx[data['c_id']]
+        #x_t = self.__load_pil_image__(data['t_img_path'])
+        #c_t = self.cls2idx[data['t_id']]
+        #we = torch.FloatTensor(self.we[data['we_key']])
+
+        if not self.transform is None:
+            x_c = self.transform(x_c)
+            #x_t = self.transform(x_t)
+        
+        return((x_c, c_c, data['c_id']),
+            (we, w_key, data['text']))
+
+    def __sample_index__(self, index):
+        image_id = self.index_dataset[index]
+        x = self.__load_pil_image__(os.path.join(self.data_root, image_id))
+
+        if not self.transform is None:
+            x = self.transform(x)
+
+        return (x, image_id)
+

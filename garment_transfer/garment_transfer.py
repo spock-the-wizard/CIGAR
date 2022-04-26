@@ -22,7 +22,7 @@ POSE_DIR = './'#os.path.join(DATA_DIR,'05_pose')
 VTON_DIR = os.path.join(DATA_DIR,'04_vton_results')
 PARSE_DIR = os.path.join(DATA_DIR,'03_image_parsed')
 
-def main(user_img, gar_img, cats, pose_path=os.path.join(POSE_DIR,'pose.csv'),parse_dir='./data/03_image_parsed/'):
+def main(user_imgs, gar_img, cats, pose_path=os.path.join(POSE_DIR,'pose.csv'),parse_dir='./data/03_image_parsed/'):
     """
     Input: 
     - user_img: 
@@ -30,35 +30,38 @@ def main(user_img, gar_img, cats, pose_path=os.path.join(POSE_DIR,'pose.csv'),pa
     Output: TryOn Image
 
     """
-    items = [user_img,gar_img]
+    if not isinstance(user_imgs,list):
+        user_imgs = [user_imgs]
+    items = [*user_imgs,gar_img]
 
     print('='*70)
     print('[START] GARMENT TRANSFER')
+    torch.cuda.empty_cache()
 
     # extract pose
     print('='*50)
     print('[STEP 1. POSE] Pose Extraction')
-
     extract_pose(items,pose_path)
 
+    torch.cuda.empty_cache()
     # Save parse map and get garment category 
     print('='*50)
     print('[STEP 2. PARSE] Parse Map Extraction')
     extract_parse_map(items,parse_dir)
-
+    
     # vton time
     print('='*50)
     print('[STEP 3. VTON] Generate Results')
-    vton = extract_vton(user_img,[gar_img],cats,USER_DIR,GAR_DIR,PARSE_DIR,pose_csv=pose_path)
+    vton = extract_vton(user_imgs,[gar_img],cats,USER_DIR,GAR_DIR,PARSE_DIR,pose_csv=pose_path)
     
     # vton = dress_up(user_img,gar_pth,parse_pth)
     # store in ./data/04_vton_results
-    pth = os.path.join(VTON_DIR,'result.png')
-    save_image(vton,pth)
-    imsave(vton,prefix='result',fdir='./')
+    # pth = os.path.join(VTON_DIR,'result.png')
+    # save_image(vton,pth)
+    # imsave(vton,prefix='result',fdir='./')
 
     # save result
-    print('Saving the image...')
+    # print('Saving the image...')
     # imsave(gen_img,fname='test.png',fdir='../data/00_test/results')
 
     

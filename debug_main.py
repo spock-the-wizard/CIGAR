@@ -18,8 +18,11 @@ IR_PARAMS = {'gpu_id': '0',
             'manualSeed': int(time.time()), 
             'data_root': '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data',
             'test_root': '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/ours/train',
+            'deepfashion_root': '/home/ubuntu/efs',
             'expr_name': 'devel', 
-            'image_size': 224}  # data_root, test_root 서버 경로로 바꿔야함!!
+            'image_size': 224,
+            'deepfashion_caption_path': '/home/ubuntu/efs/CIGAR/data/image_retrieval/generated_captions/augmented_0.5_bert.json'
+            }  # data_root, test_root 서버 경로로 바꿔야함!!
 
 if __name__ == "__main__":
 

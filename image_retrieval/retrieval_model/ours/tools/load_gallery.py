@@ -45,14 +45,24 @@ def load_gallery(model, args):
     target = args['category']
     print(f">> SPLIT: {SPLIT} / TARGET: {target}")
 
-    from train.src.dataset import FashionIQTestDataset
-    index_dataset = FashionIQTestDataset(
-        test_root = args['test_root'],
-        data_root=args['data_root'],
-        image_size=args['image_size'],
-        split=SPLIT,
-        target=target
-    )
+    from train.src.dataset import FashionIQTestDataset, DeepfashionTestDataset
+    if args.category != 'bottom':
+        index_dataset = FashionIQTestDataset(
+            test_root = args['test_root'],
+            data_root=args['data_root'],
+            image_size=args['image_size'],
+            split=SPLIT,
+            target=target
+        )
+    else:
+        index_dataset = DeepfashionTestDataset(
+            test_root = args['test_root'],
+            data_root=args['data_root'],
+            image_size=args['image_size'],
+            split=SPLIT,
+            target=target
+        )
+
     index_loader = index_dataset.get_loader(batch_size=16)
 
     index_ids = []

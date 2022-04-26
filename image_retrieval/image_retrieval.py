@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pickle
 from torch import imag, manual_seed
-from image_retrieval.retrieval_model.ours.tools.find_target import find_target
+from image_retrieval.retrieval_model.ours.tools.find_target import find_target, find_target_deepfashion
 from utils.util import glue_images
 attribute_dict = {'dress': ['wash', 'clean', 'sleeve', 'sleeveless', 'print', 'fit', 'cotton', 'maxi', 'printed', 'shoulder', 'lace', 'zipper', 'hem', 'neckline', 'please', 'strapless', 'chiffon', 'stretch', 'party', 'v-neck'],
 'shirt': ['cotton', 'wash', 'shirt', 'sleeve', 'fit', 'printed', 'logo', 'long sleeve', 'print', 'collar', 'pocket', 'button', 'soft', 'graphic', 'woven', 'classic', 'polo', 'crew', 'hem', 'stripe'],
@@ -83,13 +83,22 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
     elif isinstance(feedback, str):
         # Turn other than 
         top_k = 10
-        new_imgs = find_target(
-                        model=model,
-                        args=params,
-                        index_ids=index_ids,
-                        index_feats=index_feats,
-                        c_id=previous_img,
-                        caption=feedback)
+        if params['category'] == 'bottom':
+            new_imgs = find_target_deepfashion(
+                            model=model,
+                            args=params,
+                            index_ids=index_ids,
+                            index_feats=index_feats,
+                            c_id=previous_img,
+                            caption=feedback)
+        else:
+            new_imgs = find_target(
+                            model=model,
+                            args=params,
+                            index_ids=index_ids,
+                            index_feats=index_feats,
+                            c_id=previous_img,
+                            caption=feedback)
         print(f"Our model searched {top_k} clothes for you")
         
         # NOTE: added to save options

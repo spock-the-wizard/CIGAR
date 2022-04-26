@@ -89,6 +89,7 @@ def load_pose_from_json(ani_pose_dir):
     return pose
 
 def plot_img(pimg=[], gimgs=[], oimgs=[], gen_img=[], pose=None):
+    # import pdb;pdb.set_trace()
     if pose != None:
         # import pdb;pdb.set_trace()
         from ..utils import pose_utils #import ..utils.pose_utils as pose_utils

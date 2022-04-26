@@ -44,7 +44,10 @@ def load_model(args):
     init_env(args)
     # load model
     print(f'Load model: {args["expr_name"]}')
-    root_path = os.path.join(args['test_root'], 'repo', args['expr_name'])
+    if args['category'] == 'bottom':
+        root_path = os.path.join(args['test_root'], 'repo', args['deepfashion_expr_name'])
+    else:
+        root_path = os.path.join(args['test_root'], 'repo', args['expr_name'])
     with open(os.path.join(root_path, 'args.json'), 'r') as f:
         largs = json.load(f)
         largs = easydict.EasyDict(largs)

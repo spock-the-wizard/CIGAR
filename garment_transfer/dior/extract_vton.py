@@ -3,6 +3,7 @@
 from garment_transfer.dior.test_code.pose import *
 from garment_transfer.dior.datasets.deepfashion_datasets import *
 from torchvision.utils import save_image
+from utils.util import glue_images
 from PIL import ImageOps
 
 # ['nose', 'neck', 'Rsho', 'Relb', 'Rwri', 'Lsho', 'Lelb', 'Lwri',
@@ -77,43 +78,62 @@ class IngredientsLibrary():
         return parse.cuda()
 
 
-def dress_up(ds,user,g_keys,g_cats,order=[1,5,3,2],debug=False):
+def dress_up(ds,users,g_keys,g_cats,order=[1,5,3,2],debug=False):
     
     PID=[0,4,6,7]
-    
-    pimg, from_pose, parse = ds.load_item(user)
-    to_pose = from_pose
 
-    psegs = model.encode_attr(pimg[None], parse[None], from_pose[None], to_pose[None], PID)
-    gsegs = model.encode_attr(pimg[None], parse[None], from_pose[None], to_pose[None])
-    
-    g_cls = catlabel2index(g_cats)
-    # swap base garment if any
-    gimgs = []
-    for gkey,gcat,gid in zip(g_keys,g_cats,g_cls): # in gids:
-        gimg, pose, gparse = ds.load_item(gkey) #garment)load_img(gid, ds)
+    pimgs = []
+    poses = []
+    parses = []
+
+    for user in users:
+        user = user.split('/')[-1]
+
+        pimg, from_pose, parse = ds.load_item(user)
+
+        pimgs.append(pimg[None])
+        poses.append(from_pose[None])
+        parses.append(parse[None])
+
+    pimgs = torch.cat(pimgs)
+    poses = torch.cat(poses)
+    parses = torch.cat(parses)
+
+    with torch.no_grad():
+        psegs = model.encode_attr(pimgs,parses,poses,poses,PID)
+        gsegs = model.encode_attr(pimgs,parses,poses,poses)
+        # psegs = model.encode_attr(pimg[None], parse[None], from_pose[None], to_pose[None], PID)
+        # gsegs = model.encode_attr(pimg[None], parse[None], from_pose[None], to_pose[None])
         
-        # import pdb;pdb.set_trace()      
-        seg = model.encode_single_attr(gimg[None], gparse[None], pose[None], to_pose[None], i=gid)
+        g_cls = catlabel2index(g_cats)
+        # swap base garment if any
+        gimgs = []
+        for gkey,gcat,gid in zip(g_keys,g_cats,g_cls): # in gids:
+            gimg, pose, gparse = ds.load_item(gkey) #garment)load_img(gid, ds)
+            
+            gimg_ = gimg.expand(len(users),*gimg.shape)  
+            gparse_ = gparse.expand(len(users),*gparse.shape)
+            gpose_ = pose.expand(len(users),*pose.shape)
+            seg = model.encode_single_attr(gimg_, gparse_,gpose_, poses, i=gid)
 
-        # debug_pose = torch.max(pose,axis=0).values
-        # save_image(debug_pose,'test_gpose.png')
-        # override garments
-        gsegs[gid] = seg
-        gimgs += [gimg * (gparse == gid)]
+            # debug_pose = torch.max(pose,axis=0).values
+            # save_image(debug_pose,'test_gpose.png')
+            # override garments
+            gsegs[gid] = seg
+            gimgs += [gimg * (gparse == gid)]
 
-        if gcat == 'dress':
-            BOTTOM_IDX = 1
-            # seg = model.encode_single_attr(gimg[None], gparse[None], pose[None], to_pose[None], i=1)
-            # override pants texture with texture feat from dress
-            gsegs[BOTTOM_IDX] = (seg[0],gsegs[BOTTOM_IDX][1])
-            # order = [1,5]
-            # gimgs += [gimg*(gparse==1)]
+            if gcat == 'dress':
+                BOTTOM_IDX = 1
+                SKIN_IDX = 6
+                # seg = model.encode_single_attr(gimg[None], gparse[None], pose[None], to_pose[None], i=1)
+                # override pants texture with texture feat from dress
+                gsegs[BOTTOM_IDX] = (gsegs[SKIN_IDX][0],gsegs[BOTTOM_IDX][1])
+                # order = [1,5]
+                # gimgs += [gimg*(gparse==1)]
 
 
-    # import pdb;pdb.set_trace()
-    gsegs = [gsegs[i] for i in order]
-    gen_img = model.netG(to_pose[None], psegs, gsegs)
+        gsegs = [gsegs[i] for i in order]
+        gen_img = model.netG(poses, psegs, gsegs)
 
     '''
     import pdb;pdb.set_trace()
@@ -133,7 +153,7 @@ def dress_up(ds,user,g_keys,g_cats,order=[1,5,3,2],debug=False):
     '''
     # plt.imsave(res,'shi.png') #import pdb;pdb.set_trace()
     # save_image(res,'shi.png')
-    return pimg, gimgs, gen_img[0], [to_pose,pose]
+    return pimgs, gimgs, gen_img, poses
 
 def catlabel2index(cats):
     ind = []
@@ -147,7 +167,7 @@ def catlabel2index(cats):
         ind.append(cdict[label])
     return ind
         
-def extract_vton(user,garments,cats,usr_dir,gar_dir,parse_dir,pose_csv):
+def extract_vton(users,garments,cats,usr_dir,gar_dir,parse_dir,pose_csv):
     """
         user_pth: pth of user image
         garments: list of paths to garment image
@@ -155,21 +175,41 @@ def extract_vton(user,garments,cats,usr_dir,gar_dir,parse_dir,pose_csv):
     # import pdb;pdb.set_trace()
     # labels = catlabel2index(cats)
     ds = IngredientsLibrary(usr_dir,gar_dir,parse_dir,pose_csv)
-    # import pdb;pdb.set_trace()
-    user = user.split('/')[-1]
+    
     g_pths = [file.split('/')[-1] for file in garments]
-    usr,gars,vton,user_pose = dress_up(ds,user,g_pths,cats,debug=True)
+    
+    debugs = []
+    results = []
 
-    res = plot_img(pimg=usr,gimgs=gars,gen_img=vton,pose=user_pose[0])
-    imsave(res,prefix='debug',fdir='./')
-    imsave(res,fname='debug.png',fdir='./')
+    pimgs,gimgs,vtons,poses = dress_up(ds,users,g_pths,cats,debug=True)
+    for pimg,vton,pose in zip(pimgs,vtons,poses):
+        res = plot_img(pimg=pimg,gimgs=gimgs,gen_img=vton,pose=pose)
+    
+        # res = plot_img(pimg=usr,gimgs=gars,gen_img=vton,pose=user_pose[0])
+        debugs.append(res)
+        results.append(vton)
+
+    # save debug image and copy
+    debugs = cv2.vconcat(debugs)
+    imsave(debugs,prefix='debug',fdir='/home/ubuntu/efs/CIGAR/data/05_results')
+    imsave(debugs,fname='debug.png',fdir='/home/ubuntu/efs/CIGAR/data/04_vton_results')
+    
+    # save vton image and copy
+    # glue all results
+    vtons = torch.cat(results,dim=2)
+    imsave(vtons,prefix='results',fdir='/home/ubuntu/efs/CIGAR/data/05_results')
+    imsave(vtons,fname='results.png',fdir='/home/ubuntu/efs/CIGAR/data/04_vton_results')
+
+    print('[Saved Image] Image saved!!')
+    # save_image(vton,pth)
+    # imsave(vton,prefix='result',fdir='./')
     # res = plot_img(pimg=usr,gimgs=gars,gen_img=vton,pose=user_pose[1])
     # imsave(res,fname='pose1.png',fdir='./')
     # plt.imsave('hi3.png',res) 
     # save_image(res,'hi.png')
     
     # res = plot_img(pimg=usr,gimgs=gars,gen_img=vton,pose=user_pose[1])
-    return vton
+    return vtons
     
 # """Code to Dress up specified garmnet on User image"""
 

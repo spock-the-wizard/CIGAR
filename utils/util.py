@@ -86,11 +86,10 @@ import shutil, cv2
 import matplotlib.pyplot as plt
 import numpy as np
 # TEST_IMG = ['/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B003EIKPPA.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B006UJXA3O.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B00EB55KWS.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B001V9LOMW.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B003RG34W0.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B009ENSW4A.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B007KDGH84.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B005G1GVZQ.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B003DW6LVY.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B007VYSN0M.jpg']
-def glue_images(imgs,fname='options.png'):
+def glue_images(imgs,fname='options.png',write=True):
     # import pdb;pdb.set_trace()
-
+    
     srcs = [os.path.join(GAR_RAW_DIR,gid+'.jpg') for gid in imgs]
-
     # srcs = TEST_IMG
     dsts = [os.path.join(GAR_DIR,gid+'.png') for gid in imgs]
     
@@ -118,11 +117,10 @@ def glue_images(imgs,fname='options.png'):
         # title
         title = np.zeros((40,178,3),dtype=np.uint8)
         img = cv2.vconcat([title,img])
-        # import pdb;pdb.set_trace()
-        # Using cv2.putText() method
+        
         img = cv2.putText(img, '%d. %s'%(count,name), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 
                    0.5, (255,255,255), 1, cv2.LINE_AA)
-   
+
         img_list.append(img)
         count+=1
     
@@ -134,4 +132,7 @@ def glue_images(imgs,fname='options.png'):
     plt.title(" Search Results ")
     plt.axis('off')
     res = plt.imshow(imgs)
-    res.figure.savefig(fname,dpi=300 ,bbox_inches='tight')
+    if write:
+        res.figure.savefig(fname,dpi=300 ,bbox_inches='tight')
+
+    return res
