@@ -22,7 +22,7 @@ def run(line):
         print(dst_path)
         if image_id in broken_links:
             shutil.copy(
-                os.path.join('data/metadata/image_url/broken_links/{}.jpg',format(image_id)),
+                os.path.join('data/metadata/image_url/broken_links/{}.jpg'.format(image_id)),
                 dst_path
             )
         else:

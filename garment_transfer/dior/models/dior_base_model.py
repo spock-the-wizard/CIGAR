@@ -1,6 +1,6 @@
 import torch
 from .base_model import BaseModel
-from . import networks # import .networks
+from ..models import networks # import .networks
 import torch.nn as nn
 import copy
 from ..utils.util import tensor2im

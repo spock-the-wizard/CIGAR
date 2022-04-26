@@ -12,10 +12,10 @@ import torch.nn.functional as F
 import torchvision.models as M
 from torch.autograd import Variable
 
-import src.model.resnet as resnet
-from src.model.fusion import ConCatModule
-from src.model.base import ImageEncoderTextEncoderBase
-from src.loss import (NormalizationLayer,
+import model.resnet as resnet
+from model.fusion import ConCatModule
+from model.base import ImageEncoderTextEncoderBase
+from loss import (NormalizationLayer,
                       BatchHardTripletLoss)
  
 

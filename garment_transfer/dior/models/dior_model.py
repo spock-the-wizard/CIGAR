@@ -1,3 +1,4 @@
+
 from .dior_base_model import *
 from ..utils import util as functions
 from ..utils.mask import Masks
@@ -79,7 +80,9 @@ class DIORModel(DIORBaseModel):
 
     def encode_single_attr(self, img, parse, from_pose, to_pose, i=0, full=False):
         flow, attn = self.netFlow(img, from_pose, to_pose)
+        #import pdb; pdb.set_trace()
         mask = (parse == i).float().unsqueeze(1)
+        #mask = (parse == i).float()
         crop = img * mask
         return self.netE_attr.module.enc_seg(crop, flow[-1], self.netVGG) 
 

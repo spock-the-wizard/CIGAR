@@ -11,7 +11,8 @@ import math
 from torch.nn import init
 import functools
 from torch.optim import lr_scheduler
-import os
+import os,sys
+
 
 def get_norm_layer(norm_type='instance'):
     """Return a normalization layer
@@ -136,6 +137,7 @@ class ADGANEncoder(nn.Module):
             from models.networks.block_extractor.block_extractor import BlockExtractor
             self.extractor = BlockExtractor(kernel_size=1)
         else:
+
             from ...utils.train_utils import torch_transform
             self.extractor = torch_transform
 

@@ -102,7 +102,7 @@ class BaseModel(ABC):
         self.print_networks(opt.verbose)
         
         # tensorboard, log
-        self._init_tensorboard(opt)
+        # self._init_tensorboard(opt)
         self.log_loss_update(reset=True)    
         
         return epoch_count

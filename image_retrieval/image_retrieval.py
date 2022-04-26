@@ -3,7 +3,7 @@ import os
 import pickle
 from torch import imag, manual_seed
 from image_retrieval.retrieval_model.ours.tools.find_target import find_target
-
+from utils.util import glue_images
 attribute_dict = {'dress': ['wash', 'clean', 'sleeve', 'sleeveless', 'print', 'fit', 'cotton', 'maxi', 'printed', 'shoulder', 'lace', 'zipper', 'hem', 'neckline', 'please', 'strapless', 'chiffon', 'stretch', 'party', 'v-neck'],
 'shirt': ['cotton', 'wash', 'shirt', 'sleeve', 'fit', 'printed', 'logo', 'long sleeve', 'print', 'collar', 'pocket', 'button', 'soft', 'graphic', 'woven', 'classic', 'polo', 'crew', 'hem', 'stripe'],
 'toptee': ['wash', 'cotton', 'sleeve', 'shirt', 'print', 'fit', 'printed', 'long sleeve', 'scoop', 'soft', 'button', 'clean', 'hem', 'v-neck', 'knit', 'neckline', 'sleeveless', 'lace', 'shoulder', 'tunic'],
@@ -69,13 +69,17 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
         np.random.shuffle(imgs)
         if len(imgs) > 10:
             imgs = imgs[:10]
+        
+        # NOTE: added to save options
+        glue_images(imgs)
+
         # match하는걸 보여줌
         # user input 받음
         # 선택된 imageid return
         for i, img in enumerate(imgs):
             print('%d: %s'%(i, img))
         selected = int(input('Please select one item you like the most: '))
-        return imgs[selected]# We should return imageid!
+        return imgs[selected] # We should return imageid!
     elif isinstance(feedback, str):
         # Turn other than 
         top_k = 10
@@ -87,6 +91,9 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
                         c_id=previous_img,
                         caption=feedback)
         print(f"Our model searched {top_k} clothes for you")
+        
+        # NOTE: added to save options
+        glue_images(new_imgs)
         for img in new_imgs:
             print(f"Image is displayed here: {img}")
         selected = int(input("Please select one item you like the most."))

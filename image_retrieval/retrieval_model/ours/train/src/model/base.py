@@ -12,9 +12,9 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as M
-import src.model.resnet as resnet
+import model.resnet as resnet
 
-from src.spellchecker import SpellChecker
+from spellchecker import SpellChecker
 from torch.autograd import Variable
 
 __VERBOSE__ = False

@@ -8,10 +8,10 @@ charset-normalizer==2.0.4
 click==8.1.2
 colorama==0.4.4
 cryptography==36.0.0
-# dataclasses==0.8
+# dataclasses==0.8 ignore
 easydict==1.9
 filelock==3.6.0
-Flask==1.1.2
+# Flask==1.1.2 -> changed to Flask==2.1.0
 gast==0.3.3
 google-pasta==0.2.0
 GPUtil==1.4.0
@@ -36,7 +36,7 @@ numpy==1.21.5
 packaging==21.3
 pandas==1.4.2
 Pillow==9.0.1
-# pip==21.2.4
+# pip==21.2.4 ignore
 protobuf==3.11.3
 pycparser==2.21
 pyOpenSSL==22.0.0

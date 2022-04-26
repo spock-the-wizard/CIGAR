@@ -1,9 +1,9 @@
 [submodule "garment"]
 	path = garment
 	url = https://github.com/RisingStockPrices/dressing-in-order.git
-[submodule "parser"]
-	path = parser
+[submodule "garment_transfer/parser"]
+	path = garment_transfer/parser
 	url = https://github.com/RisingStockPrices/Self-Correction-Human-Parsing.git
-[submodule "garment_transfer/Yet-Another-Openpose-Implementation"]
+[submodule "garment_transfer/pose"]
 	path = garment_transfer/pose
 	url = https://github.com/RisingStockPrices/Yet-Another-Openpose-Implementation.git

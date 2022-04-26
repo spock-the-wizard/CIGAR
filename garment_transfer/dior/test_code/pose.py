@@ -1,15 +1,17 @@
 import os,sys,json
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from dior.models.dior_model import DIORModel
-from dior.utils.custom_utils import imsave
+DIOR_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+ #os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.dirname(DIOR_DIR))
+
+from ..models.dior_model import DIORModel
+from ..utils.custom_utils import imsave
 
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-base = './dior/'
+base = DIOR_DIR #'./garment_transfer/dior/'
 dataroot = '../data/00_test/raw'#'/shared/rsaas/aiyucui2/inshop/fashion_yifang'
 exp_name = 'DIOR_64' # DIORv1_64
 epoch = 'latest'
@@ -32,7 +34,7 @@ if True:
     opt.init_type = 'orthogonal'; opt.init_gain = 0.02; opt.gpu_ids = [0]
     opt.frozen_flownet = True; opt.random_rate = 1; opt.perturb = False; opt.warmup=False
     opt.name = exp_name
-    opt.vgg_path = ''; opt.flownet_path = os.path.join(base, 'checkpoints/DIORv1_64/latest_net_Flow.pth')#'pretrained_models/flownet.pt'
+    opt.vgg_path = ''; opt.flownet_path = '' # os.path.join(base, 'checkpoints/DIORv1_64/latest_net_Flow.pth')#'pretrained_models/flownet.pt'
     opt.checkpoints_dir = os.path.join(base, 'checkpoints')
     opt.frozen_enc = True
     opt.load_iter = 0
@@ -44,18 +46,17 @@ model = DIORModel(opt)
 model.setup(opt)
 
 # load data
-from ..datasets.deepfashion_datasets import DFVisualDataset
-Dataset = DFVisualDataset
-ds = Dataset(dataroot=dataroot, dim=(256,176), n_human_part=8)
+# from ..datasets.deepfashion_datasets import DFVisualDataset
+# Dataset = DFVisualDataset
+# ds = Dataset(dataroot=dataroot, dim=(256,176), n_human_part=8)
 
-# preload a set of pre-selected models defined in "standard_test_anns.txt" for quick visualizations 
-inputs = dict()
-for attr in ds.attr_keys:
-    inputs[attr] = ds.get_attr_visual_input(attr)
+# # preload a set of pre-selected models defined in "standard_test_anns.txt" for quick visualizations 
+# inputs = dict()
+# for attr in ds.attr_keys:
+#     inputs[attr] = ds.get_attr_visual_input(attr)
     
 # define some tool functions for I/O
 def load_img(pid, ds):
-    import pdb;pdb.set_trace()
     if isinstance(pid,str): # load pose from scratch
         return None, None, load_pose_from_json(pid)
     if len(pid[0]) < 10: # load pre-selected models
@@ -82,14 +83,15 @@ def load_pose_from_json(ani_pose_dir):
     coord = np.concatenate([x[:,None], y[:,None]], -1)
     #import pdb; pdb.set_trace()
     #coord = (coord * 1.1) - np.array([10,30])[None, :]
-    pose  = pose_utils.cords_to_map(coord, (256,176), (256, 256))
+    pose  = pose_utils.cords_to_map(coord, (256,256), (256, 176))
     pose = np.transpose(pose,(2, 0, 1))
     pose = torch.Tensor(pose)
     return pose
 
 def plot_img(pimg=[], gimgs=[], oimgs=[], gen_img=[], pose=None):
     if pose != None:
-        import utils.pose_utils as pose_utils
+        # import pdb;pdb.set_trace()
+        from ..utils import pose_utils #import ..utils.pose_utils as pose_utils
         # print(pose.size())
         kpt = pose_utils.draw_pose_from_map(pose.cpu().numpy().transpose(1,2,0),radius=6)
         # fixed this part so that keypoint image would be normalized 0..1
@@ -97,11 +99,13 @@ def plot_img(pimg=[], gimgs=[], oimgs=[], gen_img=[], pose=None):
     if not isinstance(pimg, list):
         pimg = [pimg]
     if not isinstance(gen_img, list):
+        gen_img = (gen_img+1)/2
         gen_img = [gen_img]
     out = pimg + gimgs + oimgs + gen_img
     if out:
         out = torch.cat(out, 2).float().cpu().detach().numpy()
-        out = (out + 1) / 2 # denormalize
+        # import pdb;pdb.set_trace()
+        # out = (out + 1) / 2 # denormalize
         out = np.transpose(out, [1,2,0])
         if pose != None:
             out = np.concatenate((kpt, out),1)

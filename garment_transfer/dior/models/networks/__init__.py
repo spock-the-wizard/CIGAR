@@ -1,3 +1,6 @@
+import os,sys
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.insert(0,SCRIPT_DIR)
 from .base_networks import *
 from .generators import *
 from .vgg import *
@@ -10,8 +13,8 @@ def find_generator_using_name(model_name):
     be instantiated. It has to be a subclass of BaseModel,
     and it is case-insensitive.
     """
-    model_filename = "dior.models.networks.generators"
-    #import pdb; pdb.set_trace()
+    model_filename = "garment_transfer.dior.models.networks.generators"
+    # import pdb; pdb.set_trace()
     modellib = importlib.import_module(model_filename)
     model = None
     target_model_name = model_name.replace('_', '') + 'Generator'
@@ -39,6 +42,7 @@ def define_tool_networks(tool, load_ckpt_path="", gpu_ids=[], init_type='kaiming
         #listen_list = [ 'conv_1_1', 'conv_2_1']#, 'conv_3_1', 'conv_3_2', 'conv_4_1']
         net = VGG_Model(load_ckpt_path=load_ckpt_path, listen_list=listen_list)
     if tool.startswith('flownet'):
+        #import pdb;pdb.set_trace()
         if tool == 'flownet':
             net = PoseFlowNet(3, 18, ngf=32, img_f=256, encoder_layer=5, attn_layer=[2,3], norm='instance', activation='LeakyReLU',
                                     use_spect=False, use_coord=False)   
@@ -68,6 +72,7 @@ def define_tool_networks(tool, load_ckpt_path="", gpu_ids=[], init_type='kaiming
     return init_net(net, gpu_ids=gpu_ids, do_init_weight=False)
 
 def define_E(input_nc, output_nc, netE, ngf=64, n_downsample=3, norm_type='none', relu_type='relu', frozen_flownet=True, init_type='normal', init_gain=0.02, gpu_ids=[]):
+#    import pdb;pdb.set_trace()
     if netE == 'adgan':
         net = ADGANEncoder(input_nc, output_nc, ngf=ngf, n_downsample=n_downsample, norm_type='none', relu_type=relu_type, frozen_flownet=frozen_flownet)
     return init_net(net, init_type, init_gain, gpu_ids)
