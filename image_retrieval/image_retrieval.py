@@ -71,7 +71,8 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
             imgs = imgs[:10]
         
         # NOTE: added to save options
-        glue_images(imgs)
+        category = params['category']
+        glue_images(imgs, category)
 
         # match하는걸 보여줌
         # user input 받음
@@ -85,12 +86,8 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
         top_k = 10
         if params['category'] == 'bottom':
             new_imgs = find_target_deepfashion(
-                            model=model,
-                            args=params,
-                            index_ids=index_ids,
-                            index_feats=index_feats,
-                            c_id=previous_img,
-                            caption=feedback)
+                
+            )
         else:
             new_imgs = find_target(
                             model=model,
@@ -102,7 +99,7 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
         print(f"Our model searched {top_k} clothes for you")
         
         # NOTE: added to save options
-        glue_images(new_imgs)
+        glue_images(new_imgs, category)
         for img in new_imgs:
             print(f"Image is displayed here: {img}")
         selected = int(input("Please select one item you like the most."))

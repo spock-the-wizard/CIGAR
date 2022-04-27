@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 import time
 import shutil
 from image_retrieval.image_retrieval import ir_show_keywords, ir_find_match
-from garment_transfer.garment_transfer import main as gt_generate
+# from garment_transfer.garment_transfer import main as gt_generate
 # from utils.util import name_to_filepath
 from image_retrieval.retrieval_model.ours.tools.load_model import load_model
 from image_retrieval.retrieval_model.ours.tools.load_gallery import load_gallery
@@ -40,13 +40,13 @@ if __name__ == "__main__":
     garment = None
     feedback = None
     GAR_RAW_DIR = '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/'
-    GAR_DIR = '/home/ubuntu/efs/CIGAR/data/02_image_retrieval/'1
+    GAR_DIR = '/home/ubuntu/efs/CIGAR/data/02_image_retrieval/'
+    DEEPFASHION_DIR = '/home/ubuntu/efs/'
 
     # upload all images
     category, feedback = ir_show_keywords()
     IR_PARAMS['category'] = category
     ir_model = load_model(IR_PARAMS)
-
     index_ids, index_feats = load_gallery(ir_model, IR_PARAMS)
     cats = []
     while True:
@@ -56,15 +56,15 @@ if __name__ == "__main__":
 
         cats.append(category)
         garment_id = ir_find_match(feedback, garment, ir_model, index_ids, index_feats, IR_PARAMS)
-        
-
         # garment transfer, show results
-        garmentscr = GAR_RAW_DIR + garment_id + '.jpg'
+        if IR_PARAMS['category'] == "bottom":
+            garmentscr = DEEPFASHION_DIR + garment_id
+        else:
+            garmentscr = GAR_RAW_DIR + garment_id + '.jpg'
         if not os.path.exists(garmentscr):
             print("Garment Image not exists")
         garment = os.path.join(GAR_DIR, garment_id+'.jpg')
         shutil.copyfile(garmentscr, garment)
-
         # garment = '/home/ubuntu/efs/CIGAR/data/02_image_retrieval/B00A16E1X0.jpg'
         # garment transfer
         gt_generate(user_imgs,garment,cats)

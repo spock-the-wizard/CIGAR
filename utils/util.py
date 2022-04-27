@@ -82,19 +82,33 @@ def extract_subset(list_category_image_path, list_attr_image_path):
 
 GAR_RAW_DIR = '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/'
 GAR_DIR = '/home/ubuntu/efs/CIGAR/data/02_image_retrieval/'
+DEEPFASHION_DIR = '/home/ubuntu/efs/'
+
 import shutil, cv2
 import matplotlib.pyplot as plt
 import numpy as np
 # TEST_IMG = ['/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B003EIKPPA.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B006UJXA3O.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B00EB55KWS.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B001V9LOMW.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B003RG34W0.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B009ENSW4A.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B007KDGH84.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B005G1GVZQ.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B003DW6LVY.jpg', '/home/ubuntu/efs/CIGAR/image_retrieval/retrieval_model/data/images/B007VYSN0M.jpg']
-def glue_images(imgs,fname='options.png',write=True):
+def glue_images(imgs,category, fname='options.png',write=True):
     # import pdb;pdb.set_trace()
     
-    srcs = [os.path.join(GAR_RAW_DIR,gid+'.jpg') for gid in imgs]
-    # srcs = TEST_IMG
-    dsts = [os.path.join(GAR_DIR,gid+'.png') for gid in imgs]
+    if category == 'bottom':
+        srcs = [os.path.join(DEEPFASHION_DIR,gid) for gid in imgs]
+        dsts = []
+        # Create path!
+        for gid in imgs:
+            new_path = os.path.join(GAR_DIR, gid)
+            path_dir = os.path.dirname(new_path)
+            isExist = os.path.exists(path_dir)
+            if not isExist:
+                os.makedirs(path_dir)
+            new_file_path = new_path[:-3] + 'png'
+            dsts.append(new_file_path)
+    else:
+        srcs = [os.path.join(GAR_RAW_DIR,gid+'.jpg') for gid in imgs]
+        # srcs = TEST_IMG
+        dsts = [os.path.join(GAR_DIR,gid+'.png') for gid in imgs]
     
     for src,dst in zip(srcs,dsts):
-        print(src)
         if not os.path.exists(src):
             print("Garment Image not exists")
         else:
@@ -104,7 +118,11 @@ def glue_images(imgs,fname='options.png',write=True):
     DIM = (178,236) #256,178)
     count = 0
     for img in dsts:
-        name = img.split('/')[-1][:-4]
+        if category != 'bottom':
+            name = img.split('/')[-1][:-4]
+        else:
+            splitted = img.split('/')
+            name = splitted[-2] + '/' + splitted[-1][:-4]
         img = cv2.imread(img)
         
         # import pdb;pdb.set_trace()

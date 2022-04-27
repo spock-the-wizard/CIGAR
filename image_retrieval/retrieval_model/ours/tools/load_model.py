@@ -43,7 +43,10 @@ def load_model(args):
     # init
     init_env(args)
     # load model
-    print(f'Load model: {args["expr_name"]}')
+    if args['category'] == 'bottom':
+        print(f'Load model: {args["deepfashion_expr_name"]}')
+    else:
+        print(f'Load model: {args["expr_name"]}')
     if args['category'] == 'bottom':
         root_path = os.path.join(args['test_root'], 'repo', args['deepfashion_expr_name'])
     else:
@@ -51,7 +54,6 @@ def load_model(args):
     with open(os.path.join(root_path, 'args.json'), 'r') as f:
         largs = json.load(f)
         largs = easydict.EasyDict(largs)
-        pprint(largs)
         texts = torch.load(os.path.join(root_path, 'best_model.pth'))['texts']
     if largs.method == 'text-only':
         from train.src.model.text_only import TextOnlyModel
@@ -103,5 +105,4 @@ def load_model(args):
     model.load(os.path.join(root_path, 'best_model.pth'))
     model = model.cuda()
     model.eval()
-    print(model)
     return model

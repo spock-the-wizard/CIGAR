@@ -424,8 +424,9 @@ class FashionIQTestDataset(FashionIQDataset):
         return (x, image_id)
 
 class DeepfashionTestDataset(FashionIQDataset):
-    def __init__(self, test_root, **kwargs):
+    def __init__(self, test_root,caption_path, **kwargs):
         self.test_root = test_root
+        self.caption_path = caption_path
         super(DeepfashionTestDataset, self).__init__(**kwargs)
 
     def load_index(self):
@@ -442,13 +443,13 @@ class DeepfashionTestDataset(FashionIQDataset):
             self.we = pickle.load(f)
         self.index_dataset = self.load_index()
 
-        print('[Dataset] load caption annotations: {}'.format(self.data_root))
+        print('[Dataset] load caption annotations: {}'.format(self.caption_path))
         self.query_dataset = []
         self.all_texts = []
         self.cls2idx = dict()
         self.idx2cls = list()
-        print(f'[Dataset] load annotation file: {self.args.deepfashion_caption_path}')
-        with open(os.path.join(self.args.deepfashion_caption_path), 'r') as f:
+        print(f'[Dataset] load annotation file: {self.caption_path}')
+        with open(os.path.join(self.caption_path), 'r') as f:
             data = json.load(f)
             for i, d in enumerate(tqdm(data)):
                 if not 'target' in d:
@@ -528,7 +529,7 @@ class DeepfashionTestDataset(FashionIQDataset):
 
     def __sample_index__(self, index):
         image_id = self.index_dataset[index]
-        x = self.__load_pil_image__(os.path.join(self.data_root, f'images/{image_id}.jpg'))
+        x = self.__load_pil_image__(os.path.join(self.data_root, image_id))
 
         if not self.transform is None:
             x = self.transform(x)
