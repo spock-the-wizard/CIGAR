@@ -69,13 +69,11 @@ def find_target(model, args, index_ids, index_feats, c_id, caption):
         x[0] = (x_c, c_c, data['c_id'])
         x[1] = (we, w_key, text) 이런 모양을 기대중..
         """
-        print('img size: ', input[0][0].shape) # [1, 3, 224, 224]
        
         input[0][0] = Variable(input[0][0].cuda())  # candidate 이미지
         with torch.no_grad():
             input[1][0] = model.extract_text_feature(input[1][2])   # we <- candidate 이미지에 대한 sentence embedding이 들어가야함
         input[1][0] = Variable(input[1][0].cuda())
-        print('caption size: ', input[1][0].shape)
         # textencoder에 sentence넣어서 output받기
         data = (input[0], input[1])
         #print(data)
@@ -121,8 +119,8 @@ def find_target_deepfashion(model, args, index_ids, index_feats, c_id, caption):
         test_root = args['test_root'],
         candidate = c_id,
         caption = caption,
-        data_root=args['deepfashion_root'],
         caption_path = args['deepfashion_caption_path'],
+        data_root=args['deepfashion_root'],
         image_size=args['image_size'],
         split=SPLIT,
         target=target
@@ -146,7 +144,6 @@ def find_target_deepfashion(model, args, index_ids, index_feats, c_id, caption):
         with torch.no_grad():
             input[1][0] = model.extract_text_feature(input[1][2])   # we <- candidate 이미지에 대한 sentence embedding이 들어가야함
         input[1][0] = Variable(input[1][0].cuda())
-        print('caption size: ', input[1][0].shape)
         # textencoder에 sentence넣어서 output받기
         data = (input[0], input[1])
         #print(data)

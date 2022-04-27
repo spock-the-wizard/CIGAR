@@ -6,10 +6,9 @@ GAR_DIR = os.path.dirname(os.path.abspath(__file__))
 # from dior.dress import *
 from garment_transfer.parser.extract_parse_map import * #simple_extractor import get_garment_class,parse_and_classify
 from garment_transfer.pose.extract_pose import *
-from garment_transfer.dior.extract_vton import *
 
 from torchvision.utils import save_image
-from garment_transfer.dior.test_code.pose import *
+# from garment_transfer.dior.test_code.pose import *
 
 
 DATA_DIR = os.path.join(os.path.dirname(GAR_DIR),'data')
@@ -36,14 +35,15 @@ def main(user_imgs, gar_img, cats, pose_path=os.path.join(POSE_DIR,'pose.csv'),p
 
     print('='*70)
     print('[START] GARMENT TRANSFER')
-    torch.cuda.empty_cache()
+    # torch.cuda.empty_cache()
 
     # extract pose
     print('='*50)
-    print('[STEP 1. POSE] Pose Extraction')
+    # print('[STEP 1. POSE] Pose Extraction')
     extract_pose(items,pose_path)
 
-    torch.cuda.empty_cache()
+    # torch.cuda.empty_cache()
+    # import pdb;pdb.set_trace()
     # Save parse map and get garment category 
     print('='*50)
     print('[STEP 2. PARSE] Parse Map Extraction')
@@ -52,6 +52,8 @@ def main(user_imgs, gar_img, cats, pose_path=os.path.join(POSE_DIR,'pose.csv'),p
     # vton time
     print('='*50)
     print('[STEP 3. VTON] Generate Results')
+    
+    from garment_transfer.dior.extract_vton import extract_vton
     vton = extract_vton(user_imgs,[gar_img],cats,USER_DIR,GAR_DIR,PARSE_DIR,pose_csv=pose_path)
     
     # vton = dress_up(user_img,gar_pth,parse_pth)

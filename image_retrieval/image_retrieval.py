@@ -84,10 +84,17 @@ def ir_find_match(feedback, previous_img, model, index_ids, index_feats, params)
     elif isinstance(feedback, str):
         # Turn other than 
         top_k = 10
+        category = params['category']
+
         if params['category'] == 'bottom':
             new_imgs = find_target_deepfashion(
-                
-            )
+                            model=model,
+                            args=params,
+                            index_ids=index_ids,
+                            index_feats=index_feats,
+                            c_id=previous_img,
+                            caption=feedback
+                        )
         else:
             new_imgs = find_target(
                             model=model,

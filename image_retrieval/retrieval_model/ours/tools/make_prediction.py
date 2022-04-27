@@ -180,7 +180,6 @@ def main(args):
         with torch.no_grad():
             input[1][0] = model.extract_text_feature(input[1][2])   # we <- candidate 이미지에 대한 sentence embedding이 들어가야함
         input[1][0] = Variable(input[1][0].cuda())
-        print('caption size: ', input[1][0].shape)
         # textencoder에 sentence넣어서 output받기
         data = (input[0], input[1])
         #print(data)

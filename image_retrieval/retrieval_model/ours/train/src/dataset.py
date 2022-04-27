@@ -710,11 +710,12 @@ class FashionIQUserDataset(FashionIQDataset):
 
 
 class DeepFashionUserDataset(FashionIQDataset):
-    def __init__(self, test_root, candidate, caption, **kwargs):
+    def __init__(self, test_root, candidate, caption, caption_path, **kwargs):
         self.test_root = test_root
         self.candidate = candidate
         self.caption = caption
-        super(FashionIQUserDataset, self).__init__(**kwargs)
+        self.caption_path = caption_path
+        super(DeepFashionUserDataset, self).__init__(**kwargs)
 
     def load_index(self):
         with open(self.caption_path, 'r') as f:

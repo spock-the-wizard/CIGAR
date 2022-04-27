@@ -6,8 +6,8 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 import time
 import shutil
 from image_retrieval.image_retrieval import ir_show_keywords, ir_find_match
-# from garment_transfer.garment_transfer import main as gt_generate
-# from utils.util import name_to_filepath
+from garment_transfer.garment_transfer import main as gt_generate
+from utils.util import name_to_filepath
 from image_retrieval.retrieval_model.ours.tools.load_model import load_model
 from image_retrieval.retrieval_model.ours.tools.load_gallery import load_gallery
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     # user_img_pth = input('[Step 1] Enter user image name\n')
     # test path
     # user_img = './data/01_user_image/user.jpg'
-    user_imgs = ['./data/01_user_image/user%d.jpg'%d for d in range(1)]
+    user_imgs = ['./data/01_user_image/user1.jpg']#%d.jpg'%d for d in range(1)]
     # if not os.path.exists(user_img):
     #     print('File not exists!')
 
@@ -59,23 +59,26 @@ if __name__ == "__main__":
         # garment transfer, show results
         if IR_PARAMS['category'] == "bottom":
             garmentscr = DEEPFASHION_DIR + garment_id
+            garment = os.path.join(GAR_DIR, garment_id.split(os.path.sep)[-1])
         else:
             garmentscr = GAR_RAW_DIR + garment_id + '.jpg'
+            garment = os.path.join(GAR_DIR, garment_id+'.jpg')
+
+        
         if not os.path.exists(garmentscr):
             print("Garment Image not exists")
-        garment = os.path.join(GAR_DIR, garment_id+'.jpg')
         shutil.copyfile(garmentscr, garment)
         # garment = '/home/ubuntu/efs/CIGAR/data/02_image_retrieval/B00A16E1X0.jpg'
         # garment transfer
-        gt_generate(user_imgs,garment,cats)
+        gt_generate(user_imgs,garment,[IR_PARAMS['category']])
 
         response = input('[Step 2] Continue search ?[Y/n]: ')
         if response != 'Y' and response != 'y':
             print('Ending search...')
             break
         else:
-            category = input('[Step 3] Search different category?[Y/n]: ')
-            if category != 'Y' and category != 'y':
+            category_yes = input('[Step 3] Search different category?[Y/n]: ')
+            if category_yes != 'Y' and category_yes != 'y':
                 feedback = input('[Step 4] Enter feedback: ')
                 print('Received feedback: %s' % feedback)
 
