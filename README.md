@@ -1,8 +1,8 @@
 # Conversational Image Retreival with Virtual Try-On
 
 ## Requirements
-We assume that you are in the repository directory.
-We highly recommend you to create conda environment.
+We assume that you are in the repository directory. \
+We highly recommend you to create conda environment. \
 `conda create -n cigar python=3.8 ipython`
 
 ### 1. Clone our repository
@@ -10,14 +10,14 @@ We highly recommend you to create conda environment.
 Our pipeline for image retrieval is folked from https://github.com/nashory/FashionIQChallenge2020.
 
 
-1. Install all dependencies.
+1. Install all dependencies. \
     `pip install -r ir_requirements.txt`
-2. Download dataset.
-    `cd image_retrieval/retrieval_model/`
-    `bash run_download_image.sh`
-3. Download word embedding for user feedback.
-    `pip install gdown`
-    `cd image_retrieval/retrieval_model/ours/train`
+2. Download dataset. \
+    `cd image_retrieval/retrieval_model/` \
+    `bash run_download_image.sh` \
+3. Download word embedding for user feedback. \
+    `pip install gdown` \
+    `cd image_retrieval/retrieval_model/ours/train` \
     `gdown --fuzzy https://drive.google.com/file/d/1gLl73829eVZrWuXQerJpsz8v9mPQRMAX/view?usp=sharing`
     `tar -xvf assets.tar.gz`
     
