@@ -3,7 +3,7 @@
 ## Requirements
 We assume that you are in the repository directory. \
 We highly recommend you to create conda environment. \
-`conda create -n cigar python=3.8 ipython`
+```conda create -n cigar python=3.8 ipython```
 
 ### 1. Clone our repository
 ### 2. Image Retrieval
@@ -14,7 +14,7 @@ Our pipeline for image retrieval is folked from https://github.com/nashory/Fashi
     `pip install -r ir_requirements.txt`
 2. Download dataset. \
     `cd image_retrieval/retrieval_model/` \
-    `bash run_download_image.sh` \
+    `bash run_download_image.sh`
 3. Download word embedding for user feedback. \
     `pip install gdown` \
     `cd image_retrieval/retrieval_model/ours/train` \
