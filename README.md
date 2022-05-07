@@ -11,7 +11,7 @@ Our pipeline for image retrieval is folked from https://github.com/nashory/Fashi
 
 
 1. Install all dependencies. \
-    ```Shell 
+    ```Shell Session
     pip install -r ir_requirements.txt
     ```
 2. Download dataset. \
