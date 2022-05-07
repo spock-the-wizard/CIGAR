@@ -1,9 +1,7 @@
 # Conversational Image Retreival with Virtual Try-On
 
 ## Requirements
-We assume that you are in the repository directory. \
-We highly recommend you to create conda environment. \
-```conda create -n cigar python=3.8 ipython```
+We assume that you are in the repository directory. We highly recommend you to create conda environment by ```conda create -n cigar python=3.8 ipython```
 
 ### 1. Clone our repository
 ### 2. Image Retrieval
