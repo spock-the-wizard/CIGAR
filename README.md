@@ -25,20 +25,24 @@ Our pipeline for image retrieval is folked from https://github.com/nashory/Fashi
 
 5. Download FashionIQ dataset
 
-###3. Garment Transfer
-Our pipeline for garment transfer is folked from 
+### 3. Garment Transfer
+Our pipeline for garment transfer is folked from https://github.com/cuiaiyu/dressing-in-order.git
 1. Parser
 - `pip install ninja`
-- Download checkpoint
+- Download checkpoint from [here](https://drive.google.com/drive/folders/11wWszW1kskAyMIGJHBBZzHNKN3os6pu_).
 
 2. Pose Transder
-- Install dependency of pose
+- Install dependencies of pose transfer.
 `cd pose`
 `pip install -r requirements.txt`
 
-3. DIOR
-- Install dependency of dior
+3. Dressing-in-order(DIOR)
+- Install dependencies of dior.
 `cd dior`
 `pip install -r requirements.txt`
-- Create checkpoint, flownet.pth
-`gdown --fuzzy <path>`
+- Download checkpoint of pretrained model and unzip at `checkpoints/`
+`gdown --fuzzy https://drive.google.com/file/d/1JvLu6RJ4QBAYf6ON9i_DWU3Jlj56vz5P/view?usp=sharing`
+
+
+## Run
+`python main.py`
