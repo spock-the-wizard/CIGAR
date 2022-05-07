@@ -11,10 +11,12 @@ Our pipeline for image retrieval is folked from https://github.com/nashory/Fashi
 
 
 1. Install all dependencies. \
-    ```pip install -r ir_requirements.txt
+    ```Shell 
+    pip install -r ir_requirements.txt
     ```
 2. Download dataset. \
-    ```cd image_retrieval/retrieval_model/ \
+    ```
+    cd image_retrieval/retrieval_model/ \
     bash run_download_image.sh
     ```
 3. Download word embedding for user feedback. \
